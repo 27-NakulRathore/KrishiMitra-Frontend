@@ -20,6 +20,7 @@ import EditListing from './Components/Farmer/EditListing';
 import BuyerChat from './Components/Buyer/BuyerChat'; 
 import CropRecommendation from './Components/Farmer/CropRecommendation';
 import PlantDiseaseDetection from './Components/Farmer/PlantDiseaseDetection';
+import FarmerShop from './Components/Farmer/FarmerShop';
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
         <Route path="/farmer/listings/edit/:id" element={<EditListing />} />
         <Route path="/disease-prediction" element={<PlantDiseaseDetection />} />
         <Route path="/crop-recommendation" element={<CropRecommendation />} />
+        <Route path="/farmer/shop" element={<FarmerShop />} />
 
         {/* Buyer routes */}
         <Route path="/buyer/cart" element={<BuyerCart />} />
