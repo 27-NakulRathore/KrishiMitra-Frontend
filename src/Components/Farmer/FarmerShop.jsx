@@ -10,9 +10,9 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 // Import images for each section
-import uploadCropImg from '../../assets/booking.png';
+import uploadCropImg from '../../assets/sells.png';
 import myListingsImg from '../../assets/crop listing.png';
-import bookingsImg from '../../assets/sells.png';
+import bookingsImg from '../../assets/booking.png';
 
 function FarmerShop() {
   const navigate = useNavigate();
