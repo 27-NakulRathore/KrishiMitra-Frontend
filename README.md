@@ -1,4 +1,4 @@
-​🌾 KrishiMitra: Your Digital Gateway to a Thriving Farm-to-Table Ecosystem
+​🌾KrishiMitra: Your Digital Gateway to a Thriving Farm-to-Table Ecosystem
 
 ​KrishiMitra (कृषि मित्र), which translates to "Farmer's Friend," is an all-in-one online marketplace connecting farmers directly with buyers. Our platform is designed to empower farmers with the tools and information they need to succeed while providing buyers with easy access to fresh, high-quality agricultural products.
 
