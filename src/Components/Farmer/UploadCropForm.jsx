@@ -74,6 +74,7 @@ function UploadCropFormSimplified() {
     const [uploading, setUploading] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
     const location = useLocation();
+    const [setError] = useState(null);
     
     const emailFromState = location.state?.email;
     const email = emailFromState || localStorage.getItem("farmerEmail") || "";
@@ -88,7 +89,7 @@ function UploadCropFormSimplified() {
 
 
     const navigate = useNavigate();
-    const [error, setError] = useState(null);
+    
     const [cropNameError, setCropNameError] = useState('');
     const listingsurl=`/farmer/crop-listings?email=${encodeURIComponent(email)}`;
 
