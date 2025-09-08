@@ -25,14 +25,36 @@ function FarmerHomePage() {
   const dropdownRef = useRef(null);
   const email = localStorage.getItem("email") || 'Farmer';
   const [farmer, setFarmer] = useState(null);
-    
+  const [weather, setWeather] = useState(null);
+
   useEffect(() => {
     const email = localStorage.getItem("email");
     if (email) {
-        fetch(`http://localhost:8080/api/farmer/${email}`)
-            .then(res => res.json())
-            .then(data => setFarmer(data))
-            .catch(err => console.error("Failed to load farmer", err));
+      fetch(`http://localhost:8080/api/farmer/${email}`)
+        .then(res => res.json())
+        .then(data => {
+          setFarmer(data);
+
+          // Fetch weather based on farmer's location
+          if (data?.location) {
+            const apiKey = import.meta.env.VITE_OPENWEATHER_API_KEY;
+            fetch(
+              `https://api.openweathermap.org/data/2.5/weather?q=${data.location}&appid=${apiKey}&units=metric`
+            )
+              .then(res => res.json())
+              .then(weatherData => {
+                if (weatherData?.main) {
+                  setWeather({
+                    temp: Math.round(weatherData.main.temp),
+                    condition: weatherData.weather[0].main,
+                    icon: `https://openweathermap.org/img/wn/${weatherData.weather[0].icon}.png`
+                  });
+                }
+              })
+              .catch(err => console.error("Weather fetch error:", err));
+          }
+        })
+        .catch(err => console.error("Failed to load farmer", err));
     }
   }, []);
 
@@ -40,7 +62,7 @@ function FarmerHomePage() {
 
   const handleClickOutside = (event) => {
     if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsDropdownOpen(false);
+      setIsDropdownOpen(false);
     }
   };
 
@@ -52,20 +74,20 @@ function FarmerHomePage() {
   const handleLogout = () => {
     const email = localStorage.getItem("email");
     if (email) {
-        localStorage.removeItem(`cart-${email}`);
-        localStorage.removeItem("email");
+      localStorage.removeItem(`cart-${email}`);
+      localStorage.removeItem("email");
     }
     navigate("/signin");
   };
 
   // Card data matching the image style
   const featureCards = [
-     {
+    {
       title: "Farmer Shop",
       description: "Manage your crops - upload listings, view sales, and track bookings all in one place.",
       image: farmerShopImg,
       features: ["Upload Crops", "View Listings", "Track Sales", "Manage Bookings"],
-action: () => navigate('/farmer/upload-crop', { state: { email: email } })
+      action: () => navigate('/farmer/upload-crop', { state: { email: email } })
     },
     {
       title: "Crop Recommendation",
@@ -88,7 +110,6 @@ action: () => navigate('/farmer/upload-crop', { state: { email: email } })
       features: ["Sustainable", "Eco-friendly", "Certification", "Soil Health"],
       action: () => navigate('/organic-guide')
     },
-    
     {
       title: "Disease Prediction",
       description: "Detect plant diseases early and get preventive measures and treatment advice to protect your crops.",
@@ -96,7 +117,6 @@ action: () => navigate('/farmer/upload-crop', { state: { email: email } })
       features: ["Early Detection", "Treatment", "Prevention", "Plant Health"],
       action: () => navigate('/disease-prediction')
     },
-   
     {
       title: "AI ChatBot",
       description: "Get instant plantation guidance and crop planning assistance from our AI assistant.",
@@ -104,7 +124,6 @@ action: () => navigate('/farmer/upload-crop', { state: { email: email } })
       features: ["24/7 Support", "Plantation Guide", "Crop Planning", "Instant Help"],
       action: () => navigate('/ai-chatbot')
     },
-   
   ];
 
   return (
@@ -116,6 +135,16 @@ action: () => navigate('/farmer/upload-crop', { state: { email: email } })
           CropBoom
         </Link>
 
+        {/* Weather Section */}
+        {weather && (
+          <div className="flex items-center bg-green-100 px-3 py-1 rounded-full shadow-sm">
+            <img src={weather.icon} alt="weather" className="w-6 h-6 mr-2" />
+            <span className="text-green-700 font-medium">
+              {weather.temp}°C | {weather.condition}
+            </span>
+          </div>
+        )}
+
         <div className="flex flex-col items-end">
           <div className="flex items-center text-green-700 font-semibold text-lg">
             <FontAwesomeIcon icon={faTractor} size="lg" className="mr-2" />
@@ -126,6 +155,7 @@ action: () => navigate('/farmer/upload-crop', { state: { email: email } })
           </div>
         </div>
 
+        {/* Profile Dropdown */}
         <div className="relative" ref={dropdownRef}>
           <button onClick={toggleDropdown} className="flex items-center">
             <FontAwesomeIcon icon={faUserCircle} size="lg" className="text-gray-600 hover:text-gray-800" />
@@ -166,29 +196,29 @@ action: () => navigate('/farmer/upload-crop', { state: { email: email } })
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {featureCards.map((card, index) => (
-            <div 
+            <div
               key={index}
               className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
             >
               <div className="flex flex-col md:flex-row">
                 {/* Image Section */}
                 <div className="md:w-2/5">
-                  <img 
-                    src={card.image} 
+                  <img
+                    src={card.image}
                     alt={card.title}
                     className="w-full h-full object-cover"
                   />
                 </div>
-                
+
                 {/* Content Section */}
                 <div className="p-6 md:w-3/5 flex flex-col">
                   <h2 className="text-xl font-bold text-gray-800 mb-2">{card.title}</h2>
                   <p className="text-gray-600 mb-4">{card.description}</p>
-                  
+
                   {/* Features */}
                   <div className="flex flex-wrap gap-2 mb-6">
                     {card.features.map((feature, i) => (
-                      <span 
+                      <span
                         key={i}
                         className="inline-block bg-green-100 text-green-800 rounded-full px-3 py-1 text-sm font-medium"
                       >
@@ -196,7 +226,7 @@ action: () => navigate('/farmer/upload-crop', { state: { email: email } })
                       </span>
                     ))}
                   </div>
-                  
+
                   {/* Action Button */}
                   <div className="mt-auto flex justify-end">
                     <button
