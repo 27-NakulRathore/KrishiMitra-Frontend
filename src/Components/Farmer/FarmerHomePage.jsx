@@ -22,6 +22,7 @@ import organicFarmingImg from '../../assets/organic.png';
 import diseasePredictionImg from '../../assets/disease.png';
 import aiChatbotImg from '../../assets/chat.png';
 import farmerShopImg from '../../assets/shop.png';
+import cropprice from '../../assets/cropprice.png'
 
 function FarmerHomePage() {
   const navigate = useNavigate();
@@ -107,13 +108,7 @@ function FarmerHomePage() {
       features: ["ML Analytics", "Historical Data", "Accurate Forecast", "Early Detection"],
       action: () => navigate('/yield-prediction')
     },
-    {
-      title: "Organic Farming Guide",
-      description: "Learn sustainable organic practices—from soil preparation to eco-friendly pest control and certification processes.",
-      image: organicFarmingImg,
-      features: ["Sustainable", "Eco-friendly", "Certification", "Soil Health"],
-      action: () => navigate('/organic-guide')
-    },
+   
     {
       title: "Disease Prediction",
       description: "Detect plant diseases early and get preventive measures and treatment advice to protect your crops.",
@@ -121,12 +116,26 @@ function FarmerHomePage() {
       features: ["Early Detection", "Treatment", "Prevention", "Plant Health"],
       action: () => navigate('/disease-prediction')
     },
+     {
+      title: "Organic Farming Guide",
+      description: "Learn sustainable organic practices—from soil preparation to eco-friendly pest control and certification processes.",
+      image: organicFarmingImg,
+      features: ["Sustainable", "Eco-friendly", "Certification", "Soil Health"],
+      action: () => navigate('/organic-guide')
+    },
     {
       title: "AI ChatBot",
       description: "Get instant plantation guidance and crop planning assistance from our AI assistant.",
       image: aiChatbotImg,
       features: ["24/7 Support", "Plantation Guide", "Crop Planning", "Instant Help"],
       action: () => navigate('/ai-chatbot')
+    },
+     {
+      title: "Crop Price Tracker",
+      description: "Monitor and analyze crop prices in real-time to make informed selling decisions.",
+      image: cropprice,
+      features: ["Real-time Data", "Price Alerts", "Market Trends", "Historical Data"],
+      action: () => navigate('/crop-price-tracker')
     },
   ];
 
@@ -280,12 +289,13 @@ function FarmerHomePage() {
 
       {/* Farmer Tools / Quick Links */}
       <div>
-        <h3 className="text-lg font-semibold mb-4 text-green-100">Farmer Tools</h3>
+        <h3 className="text-lg font-semibold mb-4 text-green-100">Quick Links</h3>
         <ul className="space-y-2">
-          <li><Link to="/farmer/shop" className="text-green-300 hover:text-white transition-colors">My Shop</Link></li>
-          <li><Link to="/farmer/products" className="text-green-300 hover:text-white transition-colors">My Crops</Link></li>
+          <li><Link to="/farmer/shop" className="text-green-300 hover:text-white transition-colors">Farmer Shop</Link></li>
+          <li><Link to="/farmer/crop-listings" className="text-green-300 hover:text-white transition-colors">My Crops</Link></li>
           <li><Link to="/crop-recommendation" className="text-green-300 hover:text-white transition-colors">Crop Recommendation</Link></li>
           <li><Link to="/yield-prediction" className="text-green-300 hover:text-white transition-colors">Yield Prediction</Link></li>
+          <li><Link to="/disease-prediction" className="text-green-300 hover:text-white transition-colors">Disease Prediction</Link></li>
         </ul>
       </div>
 
