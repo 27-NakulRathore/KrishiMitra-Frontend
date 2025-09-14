@@ -163,7 +163,7 @@ function BuyerRegistrationForm() {
                     </button>
                     <div className="text-center flex-grow">
                         <FontAwesomeIcon icon={faLeaf} size="2x" className="text-green-600 mb-2 animate-pulse shadow-md rounded-full bg-white p-2" />
-                        <h1 className="text-2xl font-bold text-green-700">CropBoom</h1>
+                        <h1 className="text-2xl font-bold text-green-700">Krishiमित्र</h1>
                         <div className="flex items-center justify-center mt-2">
                             <FontAwesomeIcon icon={faShoppingCart} size="lg" className="text-blue-500 mr-2" />
                             <h2 className="text-xl font-bold text-gray-800">Buyer Registration</h2>
