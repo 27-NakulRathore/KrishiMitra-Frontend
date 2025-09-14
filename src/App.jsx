@@ -9,12 +9,12 @@ import FarmerHomePage from './Components/Farmer/FarmerHomePage';
 import UploadCropForm from './Components/Farmer/UploadCropForm';
 import MyCropListings from './Components/Farmer/MyCropListings';
 import BuyerCart from './Components/Buyer/BuyerCart';
-import BuyNowPage from './Components/Buyer/BuyNowPage'; // Import BuyNowPage
+import BuyNowPage from './Components/Buyer/BuyNowPage'; 
 import BuyerProfile from './Components/Buyer/BuyerProfile';
 import EditBuyerProfile from './Components/Buyer/EditBuyerProfile';
 import BuyerOrders from './Components/Buyer/BuyerOrders';
 import BookingsPage from './Components/Farmer/BookingsPage';
-import FarmerProfile from './Components/Farmer/FarmerProfile'; // add this import as it is used below
+import FarmerProfile from './Components/Farmer/FarmerProfile';
 import ViewListing from './Components/Farmer/ViewListing';
 import EditListing from './Components/Farmer/EditListing';
 import BuyerChat from './Components/Buyer/BuyerChat'; 
@@ -27,7 +27,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<FarmerHomePage />} />
+        <Route path="/" element={<Landing />} />
         <Route path="/signin" element={<SignIn />} />
 
         {/* Registration */}

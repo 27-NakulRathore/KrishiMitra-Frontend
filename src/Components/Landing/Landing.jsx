@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faTractor, faShoppingCart, faRobot, faChartLine, 
   faMobileAlt, faLeaf, faMapMarkerAlt, faPhoneAlt, 
-  faEnvelope, faNewspaper 
+  faEnvelope, faNewspaper, faHandshake, faSeedling
 } from '@fortawesome/free-solid-svg-icons';
 import { 
   faFacebookF, faTwitter, faInstagram, faLinkedinIn 
@@ -86,9 +86,17 @@ function Landing() {
 
       {/* Header */}
       <header className="flex justify-between items-center p-6 w-full max-w-7xl mx-auto">
+        {/* Updated Logo */}
         <div className="flex items-center">
-          <FontAwesomeIcon icon={faLeaf} size="lg" className="text-green-600 mr-2" />
-          <span className="text-xl font-bold text-green-700">CropBoom</span>
+          <div className="relative">
+            <FontAwesomeIcon 
+              icon={faLeaf} 
+              size="lg" 
+              className="text-green-600 mr-2" 
+            />
+           
+          </div>
+          <span className="text-xl font-bold text-green-700">Krishiमित्र</span>
         </div>
         <Link to="/signin" className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-md transition-colors duration-300">
           Sign In
@@ -100,7 +108,7 @@ function Landing() {
         {/* Title Section */}
         <div className="max-w-3xl mb-8">
           <h1 className="text-4xl md:text-5xl font-extrabold mb-4 text-green-900 leading-tight">
-            Welcome to CropBoom
+            Welcome to Krishiमित्र
             <br />
             Connecting Farmers and Buyers
           </h1>
@@ -140,7 +148,7 @@ function Landing() {
       {/* Features Section */}
       <div className="w-full bg-gradient-to-br from-green-50 to-green-100 py-12">
         <div className="max-w-7xl mx-auto px-4 md:px-8 mb-10 text-center">
-          <h2 className="text-3xl font-bold text-green-800 mb-4">Why Choose CropBoom?</h2>
+          <h2 className="text-3xl font-bold text-green-800 mb-4">Why Choose Krishiमित्र?</h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
             Our platform brings innovation to agriculture with cutting-edge features designed for modern farmers and buyers.
           </p>
@@ -271,9 +279,17 @@ function Landing() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {/* Logo and Description */}
             <div className="space-y-4">
+              {/* Updated Footer Logo */}
               <div className="flex items-center">
-                <FontAwesomeIcon icon={faLeaf} size="lg" className="text-green-300 mr-2" />
-                <span className="text-xl font-bold text-green-100">CropBoom</span>
+                <div className="relative">
+                  <FontAwesomeIcon 
+                    icon={faLeaf} 
+                    size="lg" 
+                    className="text-green-300 mr-2" 
+                  />
+                 
+                </div>
+                <span className="text-xl font-bold text-green-100">Krishiमित्र</span>
               </div>
               <p className="text-green-200">
                 Connecting farmers and buyers through innovative technology for a sustainable agricultural future.
@@ -330,7 +346,7 @@ function Landing() {
                 </p>
                 <p className="flex items-center">
                   <FontAwesomeIcon icon={faEnvelope} className="mr-2" />
-                  <a href="mailto:info@cropboom.com">info@cropboom.com</a>
+                  <a href="mailto:info@cropboom.com">info@krishimitr.com</a>
                 </p>
               </address>
             </div>
@@ -338,7 +354,7 @@ function Landing() {
 
           {/* Copyright */}
           <div className="border-t border-green-700 mt-8 pt-8 text-center text-green-300">
-            <p>&copy; {new Date().getFullYear()} CropBoom. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} Krishiमित्र. All rights reserved.</p>
           </div>
         </div>
       </footer>

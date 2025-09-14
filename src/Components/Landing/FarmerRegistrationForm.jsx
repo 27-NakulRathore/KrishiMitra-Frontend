@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import '../../index.css';
 import { useNavigate, Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLeaf, faTractor, faEye, faEyeSlash, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faLeaf, faTractor, faEye, faEyeSlash, faArrowLeft, faUser, faEnvelope, faLock, faMapMarkerAlt, faPhone } from '@fortawesome/free-solid-svg-icons';
 import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import 'react-toastify/dist/ReactToastify.css'; 
+import backgroundimage from '../../assets/farmerregistration.png';
 
 function FarmerRegistrationForm() {
     const [formData, setFormData] = useState({
@@ -70,7 +71,6 @@ function FarmerRegistrationForm() {
             [name]: value
         }));
         
-        // Clear error when user starts typing
         if (errors[name]) {
             setErrors(prev => ({
                 ...prev,
@@ -150,7 +150,13 @@ function FarmerRegistrationForm() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-green-100 to-green-50 flex justify-center items-center p-4 md:p-10">
+        <div className="min-h-screen flex justify-center items-center p-4 md:p-10 relative"
+            style={{
+                backgroundImage: `url(${backgroundimage})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat'
+            }}>
             <div className="bg-white p-8 rounded-lg shadow-md border border-gray-200 max-w-md w-full animate-fade-in">
                 <div className="flex items-center mb-4">
                     <button 
@@ -161,112 +167,97 @@ function FarmerRegistrationForm() {
                     </button>
                     <div className="text-center flex-grow">
                         <FontAwesomeIcon icon={faLeaf} size="2x" className="text-green-600 mb-2 animate-pulse shadow-md rounded-full bg-white p-2" />
-                        <h1 className="text-2xl font-bold text-green-700">CropBoom</h1>
+                        <h1 className="text-2xl font-bold text-green-700">Krishiमित्र</h1>
                         <div className="flex items-center justify-center mt-2">
                             <FontAwesomeIcon icon={faTractor} size="lg" className="text-green-600 mr-2" />
                             <h2 className="text-xl font-bold text-gray-800">Farmer Registration</h2>
                         </div>
                     </div>
-                    <div className="w-8"></div> {/* Spacer for alignment */}
+                    <div className="w-8"></div>
                 </div>
 
                 <form onSubmit={handleRegister} className="space-y-4">
-                    <div className="flex items-center">
-                        <label className="block text-gray-700 text-sm font-bold w-1/3 text-right mr-3" htmlFor="name">
-                            Name:
-                        </label>
-                        <div className="w-2/3">
-                            <input
-                                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.name ? 'border-red-500' : 'border-gray-300 focus:border-green-500'}`}
-                                id="name"
-                                name="name"
-                                type="text"
-                                placeholder="Your Full Name"
-                                value={formData.name}
-                                onChange={handleChange}
-                            />
-                            {errors.name && <p className="text-red-500 text-xs italic mt-1">{errors.name}</p>}
-                        </div>
+                    {/* Name */}
+                    <div className="relative">
+                        <FontAwesomeIcon icon={faUser} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-600" />
+                        <input
+                            className={`pl-10 shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.name ? 'border-red-500' : 'border-gray-300 focus:border-green-500'}`}
+                            id="name"
+                            name="name"
+                            type="text"
+                            placeholder="Enter your full name"
+                            value={formData.name}
+                            onChange={handleChange}
+                        />
+                        {errors.name && <p className="text-red-500 text-xs italic mt-1">{errors.name}</p>}
                     </div>
 
-                    <div className="flex items-center">
-                        <label className="block text-gray-700 text-sm font-bold w-1/3 text-right mr-3" htmlFor="email">
-                            Email:
-                        </label>
-                        <div className="w-2/3">
-                            <input
-                                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.email ? 'border-red-500' : 'border-gray-300 focus:border-green-500'}`}
-                                id="email"
-                                name="email"
-                                type="email"
-                                placeholder="Email Address"
-                                value={formData.email}
-                                onChange={handleChange}
-                            />
-                            {errors.email && <p className="text-red-500 text-xs italic mt-1">{errors.email}</p>}
-                        </div>
+                    {/* Email */}
+                    <div className="relative">
+                        <FontAwesomeIcon icon={faEnvelope} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-600" />
+                        <input
+                            className={`pl-10 shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.email ? 'border-red-500' : 'border-gray-300 focus:border-green-500'}`}
+                            id="email"
+                            name="email"
+                            type="email"
+                            placeholder="Enter your email"
+                            value={formData.email}
+                            onChange={handleChange}
+                        />
+                        {errors.email && <p className="text-red-500 text-xs italic mt-1">{errors.email}</p>}
                     </div>
 
-                    <div className="flex items-center relative">
-                        <label className="block text-gray-700 text-sm font-bold w-1/3 text-right mr-3" htmlFor="password">
-                            Password:
-                        </label>
-                        <div className="w-2/3 relative">
-                            <input
-                                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.password ? 'border-red-500' : 'border-gray-300 focus:border-green-500'}`}
-                                id="password"
-                                name="password"
-                                type={showPassword ? 'text' : 'password'}
-                                placeholder="Password"
-                                value={formData.password}
-                                onChange={handleChange}
-                            />
-                            <button
-                                type="button"
-                                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 focus:outline-none"
-                                onClick={() => setShowPassword(!showPassword)}
-                                title={showPassword ? 'Hide Password' : 'Show Password'}
-                            >
-                                <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} size="lg" />
-                            </button>
-                            {errors.password && <p className="text-red-500 text-xs italic mt-1">{errors.password}</p>}
-                        </div>
+                    {/* Password */}
+                    <div className="relative">
+                        <FontAwesomeIcon icon={faLock} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-600" />
+                        <input
+                            className={`pl-10 pr-10 shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.password ? 'border-red-500' : 'border-gray-300 focus:border-green-500'}`}
+                            id="password"
+                            name="password"
+                            type={showPassword ? 'text' : 'password'}
+                            placeholder="Create a strong password"
+                            value={formData.password}
+                            onChange={handleChange}
+                        />
+                        <button
+                            type="button"
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 focus:outline-none"
+                            onClick={() => setShowPassword(!showPassword)}
+                            title={showPassword ? 'Hide Password' : 'Show Password'}
+                        >
+                            <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} size="lg" />
+                        </button>
+                        {errors.password && <p className="text-red-500 text-xs italic mt-1">{errors.password}</p>}
                     </div>
 
-                    <div className="flex items-center">
-                        <label className="block text-gray-700 text-sm font-bold w-1/3 text-right mr-3" htmlFor="location">
-                            Location:
-                        </label>
-                        <div className="w-2/3">
-                            <input
-                                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.location ? 'border-red-500' : 'border-gray-300 focus:border-green-500'}`}
-                                id="location"
-                                name="location"
-                                type="text"
-                                placeholder="Farm Location (City, State)"
-                                value={formData.location}
-                                onChange={handleChange}
-                            />
-                            {errors.location && <p className="text-red-500 text-xs italic mt-1">{errors.location}</p>}
-                        </div>
+                    {/* Location */}
+                    <div className="relative">
+                        <FontAwesomeIcon icon={faMapMarkerAlt} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-600" />
+                        <input
+                            className={`pl-10 shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.location ? 'border-red-500' : 'border-gray-300 focus:border-green-500'}`}
+                            id="location"
+                            name="location"
+                            type="text"
+                            placeholder="Farm Location (City, State)"
+                            value={formData.location}
+                            onChange={handleChange}
+                        />
+                        {errors.location && <p className="text-red-500 text-xs italic mt-1">{errors.location}</p>}
                     </div>
 
-                    <div className="flex items-center">
-                        <label className="block text-gray-700 text-sm font-bold w-1/3 text-right mr-3" htmlFor="contactNumber">
-                            Contact No.:
-                        </label>
-                        <div className="w-2/3">
-                            <input
-                                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.contactNumber ? 'border-red-500' : 'border-gray-300 focus:border-green-500'}`}
-                                id="contactNumber"
-                                name="contactNumber"
-                                type="tel"
-                                placeholder="10-digit number"
-                                value={formData.contactNumber}
-                                onChange={handleChange}
-                            />
-                            {errors.contactNumber && <p className="text-red-500 text-xs italic mt-1">{errors.contactNumber}</p>}
-                        </div>
+                    {/* Contact Number */}
+                    <div className="relative">
+                        <FontAwesomeIcon icon={faPhone} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-600" />
+                        <input
+                            className={`pl-10 shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.contactNumber ? 'border-red-500' : 'border-gray-300 focus:border-green-500'}`}
+                            id="contactNumber"
+                            name="contactNumber"
+                            type="tel"
+                            placeholder="10-digit number"
+                            value={formData.contactNumber}
+                            onChange={handleChange}
+                        />
+                        {errors.contactNumber && <p className="text-red-500 text-xs italic mt-1">{errors.contactNumber}</p>}
                     </div>
 
                     <button
@@ -279,7 +270,7 @@ function FarmerRegistrationForm() {
                     
                     <div className="text-center mt-3">
                         <Link to="/signin" className="inline-block align-baseline font-bold text-xs text-green-500 hover:text-green-800">
-                            Already have an account? Sign In
+                        Already have an account? Sign In
                         </Link>
                     </div>
                 </form>
