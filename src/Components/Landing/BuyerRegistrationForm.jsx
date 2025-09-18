@@ -2,8 +2,20 @@ import React, { useState } from 'react';
 import '../../index.css';
 import { useNavigate, Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faShoppingCart, faLeaf, faEye, faEyeSlash, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { 
+  faShoppingCart, 
+  faUser, 
+  faLeaf, 
+  faEnvelope, 
+  faLock, 
+  faEye, 
+  faEyeSlash, 
+  faArrowLeft, 
+  faMapMarkerAlt, 
+  faPhone 
+} from '@fortawesome/free-solid-svg-icons';
 import { toast, ToastContainer } from 'react-toastify';
+import backgroundimage from '../../assets/buyerregistration.png';
 import 'react-toastify/dist/ReactToastify.css';
 
 function BuyerRegistrationForm() {
@@ -151,35 +163,43 @@ function BuyerRegistrationForm() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-green-100 to-green-50 flex justify-center items-center p-4 md:p-10">
+        <div className="min-h-screen flex justify-center items-center p-4 md:p-10 relative"
+            style={{
+                backgroundImage: `url(${backgroundimage})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat'
+            }}>
             <div className="bg-white p-8 rounded-lg shadow-md border border-gray-200 max-w-md w-full animate-fade-in">
                 {/* Header with back arrow */}
                 <div className="flex items-center mb-4">
                     <button 
                         onClick={() => navigate('/')}
-                        className="text-blue-500 hover:text-blue-700 mr-2"
+                        className="text-blue-500 hover:text-blue-700 mr-2 transition-colors duration-200"
                     >
                         <FontAwesomeIcon icon={faArrowLeft} size="lg" />
                     </button>
-                    <div className="text-center flex-grow">
+                   <div className="text-center flex-grow">
                         <FontAwesomeIcon icon={faLeaf} size="2x" className="text-green-600 mb-2 animate-pulse shadow-md rounded-full bg-white p-2" />
                         <h1 className="text-2xl font-bold text-green-700">Krishiमित्र</h1>
                         <div className="flex items-center justify-center mt-2">
                             <FontAwesomeIcon icon={faShoppingCart} size="lg" className="text-blue-500 mr-2" />
                             <h2 className="text-xl font-bold text-gray-800">Buyer Registration</h2>
                         </div>
-                    </div>
+                     </div>
                     <div className="w-8"></div> {/* Spacer for alignment */}
                 </div>
 
                 <form onSubmit={handleRegister} className="space-y-4">
+                    {/* Name Field */}
                     <div>
-                        <div className="flex items-center">
-                            <label className="block text-gray-700 text-sm font-bold w-1/3 text-right mr-3" htmlFor="name">
-                                Name:
-                            </label>
+                        <div className="relative">
+                            <FontAwesomeIcon 
+                                icon={faUser} 
+                                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-500 transition-colors duration-200" 
+                            />
                             <input
-                                className={`shadow appearance-none border rounded w-2/3 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.name ? 'border-red-500' : 'border-gray-300 focus:border-blue-500'}`}
+                                className={`pl-10 pr-3 shadow appearance-none border rounded w-full py-2 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.name ? 'border-red-500' : 'border-gray-300 focus:border-blue-500'}`}
                                 id="name"
                                 name="name"
                                 type="text"
@@ -191,13 +211,15 @@ function BuyerRegistrationForm() {
                         {errors.name && <p className="text-red-500 text-xs italic text-right pr-3 mt-1">{errors.name}</p>}
                     </div>
 
+                    {/* Email Field */}
                     <div>
-                        <div className="flex items-center">
-                            <label className="block text-gray-700 text-sm font-bold w-1/3 text-right mr-3" htmlFor="email">
-                                Email:
-                            </label>
+                        <div className="relative">
+                            <FontAwesomeIcon 
+                                icon={faEnvelope} 
+                                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-500 transition-colors duration-200" 
+                            />
                             <input
-                                className={`shadow appearance-none border rounded w-2/3 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.email ? 'border-red-500' : 'border-gray-300 focus:border-blue-500'}`}
+                                className={`pl-10 pr-3 shadow appearance-none border rounded w-full py-2 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.email ? 'border-red-500' : 'border-gray-300 focus:border-blue-500'}`}
                                 id="email"
                                 name="email"
                                 type="email"
@@ -209,13 +231,15 @@ function BuyerRegistrationForm() {
                         {errors.email && <p className="text-red-500 text-xs italic text-right pr-3 mt-1">{errors.email}</p>}
                     </div>
 
+                    {/* Password Field */}
                     <div>
-                        <div className="flex items-center relative">
-                            <label className="block text-gray-700 text-sm font-bold w-1/3 text-right mr-3" htmlFor="password">
-                                Password:
-                            </label>
+                        <div className="relative">
+                            <FontAwesomeIcon 
+                                icon={faLock} 
+                                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-500 transition-colors duration-200" 
+                            />
                             <input
-                                className={`shadow appearance-none border rounded w-2/3 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.password ? 'border-red-500' : 'border-gray-300 focus:border-blue-500'}`}
+                                className={`pl-10 pr-10 shadow appearance-none border rounded w-full py-2 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.password ? 'border-red-500' : 'border-gray-300 focus:border-blue-500'}`}
                                 id="password"
                                 name="password"
                                 type={showPassword ? 'text' : 'password'}
@@ -225,23 +249,25 @@ function BuyerRegistrationForm() {
                             />
                             <button
                                 type="button"
-                                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 focus:outline-none"
+                                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-blue-500 focus:outline-none transition-colors duration-200"
                                 onClick={() => setShowPassword(!showPassword)}
                                 title={showPassword ? 'Hide Password' : 'Show Password'}
                             >
-                                <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} size="lg" />
+                                <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} />
                             </button>
                         </div>
                         {errors.password && <p className="text-red-500 text-xs italic text-right pr-3 mt-1">{errors.password}</p>}
                     </div>
 
+                    {/* Shipping Address Field */}
                     <div>
-                        <div className="flex items-center">
-                            <label className="block text-gray-700 text-sm font-bold w-1/3 text-right mr-3" htmlFor="shippingAddress">
-                                Shipping Address:
-                            </label>
+                        <div className="relative">
+                            <FontAwesomeIcon 
+                                icon={faMapMarkerAlt} 
+                                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-500 transition-colors duration-200" 
+                            />
                             <input
-                                className={`shadow appearance-none border rounded w-2/3 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.shippingAddress ? 'border-red-500' : 'border-gray-300 focus:border-blue-500'}`}
+                                className={`pl-10 pr-3 shadow appearance-none border rounded w-full py-2 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.shippingAddress ? 'border-red-500' : 'border-gray-300 focus:border-blue-500'}`}
                                 id="shippingAddress"
                                 name="shippingAddress"
                                 type="text"
@@ -253,13 +279,15 @@ function BuyerRegistrationForm() {
                         {errors.shippingAddress && <p className="text-red-500 text-xs italic text-right pr-3 mt-1">{errors.shippingAddress}</p>}
                     </div>
 
+                    {/* Contact Number Field */}
                     <div>
-                        <div className="flex items-center">
-                            <label className="block text-gray-700 text-sm font-bold w-1/3 text-right mr-3" htmlFor="contactNumber">
-                                Contact No.:
-                            </label>
+                        <div className="relative">
+                            <FontAwesomeIcon 
+                                icon={faPhone} 
+                                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-500 transition-colors duration-200" 
+                            />
                             <input
-                                className={`shadow appearance-none border rounded w-2/3 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.contactNumber ? 'border-red-500' : 'border-gray-300 focus:border-blue-500'}`}
+                                className={`pl-10 pr-3 shadow appearance-none border rounded w-full py-2 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.contactNumber ? 'border-red-500' : 'border-gray-300 focus:border-blue-500'}`}
                                 id="contactNumber"
                                 name="contactNumber"
                                 type="tel"
@@ -273,14 +301,14 @@ function BuyerRegistrationForm() {
 
                     <button
                         type="submit"
-                        className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full mt-4 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full mt-4 transition-colors duration-200 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                         disabled={isSubmitting}
                     >
                         {isSubmitting ? 'Registering...' : 'Register'}
                     </button>
                     
                     <div className="text-center mt-3">
-                        <Link to="/signin" className="inline-block align-baseline font-bold text-xs text-blue-500 hover:text-blue-800">
+                        <Link to="/signin" className="inline-block align-baseline font-bold text-xs text-blue-500 hover:text-blue-800 transition-colors duration-200">
                             Already have an account? Sign In
                         </Link>
                     </div>
