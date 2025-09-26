@@ -82,7 +82,7 @@ function FarmerHomePage() {
       localStorage.removeItem(`cart-${email}`);
       localStorage.removeItem("email");
     }
-    navigate("/signin");
+   navigate("/signin", { replace: true }); 
   };
 
   // Card data matching the image style

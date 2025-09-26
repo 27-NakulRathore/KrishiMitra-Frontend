@@ -15,7 +15,7 @@ function MyCropListings() {
   const navigate = useNavigate();
 
   const handleBackClick = () => {
-    navigate('/FarmerHomePage', { state: { email } });
+    navigate('/farmer/shop', { state: { email } });
   };
 
   // ✅ Helper function to safely parse dates

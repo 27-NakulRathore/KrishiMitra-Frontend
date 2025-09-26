@@ -230,52 +230,54 @@ function UploadCropFormSimplified() {
     };
 
     const handleUpload = async (e) => {
-        e.preventDefault();
-        if (!cropName || !quantity || !address) {
-            showErrorToast('Please fill all required fields');
-            return;
-        }
+  e.preventDefault();
 
-        setUploading(true);
-        try {
-            const formData = new FormData();
-            formData.append('cropName', cropName);
-            formData.append('quantity', parseFloat(quantity));
-            formData.append('unit', unit);
-            formData.append('address', address);
-            formData.append('email', email);
-            if (image) formData.append('CropImage', image);
+  if (!cropName || !quantity || !address) {
+    showErrorToast('Please fill all required fields');
+    return;
+  }
 
-            if (analysisData.quality) {
-                formData.append('quality', analysisData.quality);
-            }
-            if (analysisData.priceRange) {
-                formData.append('priceRange', analysisData.priceRange);
-            }
+  if (!analysisData.quality || !analysisData.priceRange) {
+    showErrorToast('Please analyze the crop image before uploading');
+    return;
+  }
 
-            await axios.post('http://localhost:8080/api/crops/upload', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-            });
+  setUploading(true);
+  try {
+    const formData = new FormData();
+    formData.append('cropName', cropName);
+    formData.append('quantity', parseFloat(quantity));
+    formData.append('unit', unit);
+    formData.append('address', address);
+    formData.append('email', email);
+    if (image) formData.append('CropImage', image);
 
-            showSuccessToast('Crop uploaded successfully!', () => {
-                navigate(listingsurl);
-            });
+    // Always include AI analysis results
+    formData.append('quality', analysisData.quality);
+    formData.append('priceRange', analysisData.priceRange);
 
-            setCropName('');
-            setQuantity('');
-            setAddress('');
-            setImage(null);
-            setImagePreview(null);
-            setAnalysisResult(null);
-            setAnalysisData({});
+    await axios.post('http://localhost:8080/api/crops/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
 
-        } catch (error) {
-            showErrorToast('Upload failed: ' + (error.response?.data?.message || error.message));
-            setUploading(false);
-        } finally {
-            setUploading(false);
-        }
-    };
+    showSuccessToast('Crop uploaded successfully!', () => {
+      navigate(listingsurl);
+    });
+
+    // reset form
+    setCropName('');
+    setQuantity('');
+    setAddress('');
+    setImage(null);
+    setImagePreview(null);
+    setAnalysisResult(null);
+    setAnalysisData({});
+  } catch (error) {
+    showErrorToast('Upload failed: ' + (error.response?.data?.message || error.message));
+  } finally {
+    setUploading(false);
+  }
+};
 
     useEffect(() => {
         if (!GEMINI_API_KEY) {
