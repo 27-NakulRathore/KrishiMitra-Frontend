@@ -3,14 +3,20 @@ import { useNavigate, Link} from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faEnvelope,
+<<<<<<< HEAD
 faLocationDot,
 faPhoneAlt,
+=======
+  faLocationDot,
+  faPhoneAlt,
+>>>>>>> upstream/main
   faLeaf,
   faTractor,
   faSignOutAlt,
   faUserCircle,
   faBoxOpen,
-  faArrowRight
+  faArrowRight,
+  faBell
 } from '@fortawesome/free-solid-svg-icons';
 import { faFacebookF, faTwitter, faInstagram, faLinkedinIn } from "@fortawesome/free-brands-svg-icons";
 import PropTypes from 'prop-types';
@@ -27,10 +33,17 @@ import cropprice from '../../assets/cropprice.png'
 function FarmerHomePage() {
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const notificationRef = useRef(null);
   const email = localStorage.getItem("email") || 'Farmer';
   const [farmer, setFarmer] = useState(null);
   const [weather, setWeather] = useState(null);
+<<<<<<< HEAD
+=======
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+>>>>>>> upstream/main
 
   useEffect(() => {
     const email = localStorage.getItem("email");
@@ -58,16 +71,73 @@ function FarmerHomePage() {
               })
               .catch(err => console.error("Weather fetch error:", err));
           }
+<<<<<<< HEAD
+=======
+
+          // Fetch notifications for the farmer
+          fetchNotifications(data.id || email);
+>>>>>>> upstream/main
         })
         .catch(err => console.error("Failed to load farmer", err));
     }
   }, []);
 
+  const fetchNotifications = (farmerId) => {
+    // Mock notifications - replace with actual API call
+    const mockNotifications = [
+      {
+        id: 1,
+        type: 'order',
+        title: 'New Order Received',
+        message: 'Your crop "Organic Tomatoes" has been booked by John Doe',
+        timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
+        read: false,
+        link: '/farmer/orders'
+      },
+      {
+        id: 2,
+        type: 'update',
+        title: 'Weather Alert',
+        message: 'Heavy rainfall expected in your area tomorrow',
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
+        read: false,
+        link: '/weather'
+      },
+      {
+        id: 3,
+        type: 'system',
+        title: 'System Update',
+        message: 'New features available in Crop Recommendation tool',
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
+        read: true,
+        link: '/crop-recommendation'
+      }
+    ];
+
+    setNotifications(mockNotifications);
+    setUnreadCount(mockNotifications.filter(notif => !notif.read).length);
+  };
+
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
+
+  const toggleNotifications = () => {
+    setIsNotificationOpen(!isNotificationOpen);
+    // Mark notifications as read when opening
+    if (!isNotificationOpen && unreadCount > 0) {
+      setUnreadCount(0);
+      setNotifications(prev => prev.map(notif => ({ ...notif, read: true })));
+    }
+  };
 
   const handleClickOutside = (event) => {
     if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
       setIsDropdownOpen(false);
+<<<<<<< HEAD
+=======
+    }
+    if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+      setIsNotificationOpen(false);
+>>>>>>> upstream/main
     }
   };
 
@@ -81,8 +151,36 @@ function FarmerHomePage() {
     if (email) {
       localStorage.removeItem(`cart-${email}`);
       localStorage.removeItem("email");
+<<<<<<< HEAD
     }
    navigate("/signin", { replace: true }); 
+=======
+    }
+   navigate("/signin", { replace: true }); 
+  };
+
+  const handleNotificationClick = (notification) => {
+    if (notification.link) {
+      navigate(notification.link);
+      setIsNotificationOpen(false);
+    }
+  };
+
+  const formatTime = (timestamp) => {
+    const now = new Date();
+    const diff = now - timestamp;
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+
+    if (minutes < 60) {
+      return `${minutes}m ago`;
+    } else if (hours < 24) {
+      return `${hours}h ago`;
+    } else {
+      return `${days}d ago`;
+    }
+>>>>>>> upstream/main
   };
 
   // Card data matching the image style
@@ -92,7 +190,11 @@ function FarmerHomePage() {
       description: "Manage your crops - upload listings, view sales, and track bookings all in one place.",
       image: farmerShopImg,
       features: ["Upload Crops", "View Listings", "Track Sales", "Manage Bookings"],
+<<<<<<< HEAD
       action: () => navigate('/farmer/upload-crop', { state: { email: email } })
+=======
+       action: () => navigate('/farmer/upload-crop', { state: { email: email } })
+>>>>>>> upstream/main
     },
     {
       title: "Crop Recommendation",
@@ -143,10 +245,26 @@ function FarmerHomePage() {
     <div className="min-h-screen bg-green-50 flex flex-col">
       {/* Header */}
       <header className="bg-white shadow-md py-4 px-6 flex items-center justify-between">
-        <Link to="/" className="text-green-700 font-bold text-2xl flex items-center hover:opacity-80">
-          <FontAwesomeIcon icon={faLeaf} className="mr-2 text-green-600 animate-pulse" />
-          CropBoom
-        </Link>
+        <div className="flex items-center">
+          <div className="relative">
+            <FontAwesomeIcon 
+              icon={faLeaf} 
+              size="lg" 
+              className="text-green-600 mr-2" 
+            />
+          </div>
+          <span className="text-xl font-bold text-green-700">Krishiमित्र</span>
+        </div>
+
+        {/* Weather Section */}
+        {weather && (
+          <div className="flex items-center bg-green-100 px-3 py-1 rounded-full shadow-sm">
+            <img src={weather.icon} alt="weather" className="w-6 h-6 mr-2" />
+            <span className="text-green-700 font-medium">
+              {weather.temp}°C | {weather.condition}
+            </span>
+          </div>
+        )}
 
         {/* Weather Section */}
         {weather && (
@@ -168,33 +286,116 @@ function FarmerHomePage() {
           </div>
         </div>
 
+<<<<<<< HEAD
         {/* Profile Dropdown */}
         <div className="relative" ref={dropdownRef}>
           <button onClick={toggleDropdown} className="flex items-center">
             <FontAwesomeIcon icon={faUserCircle} size="lg" className="text-gray-600 hover:text-gray-800" />
             <span className="ml-2 hidden md:inline">{farmer?.name || 'Farmer'}</span>
           </button>
+=======
+        {/* Notification Bell and Profile */}
+        <div className="flex items-center space-x-4">
+          {/* Notification Bell */}
+          <div className="relative" ref={notificationRef}>
+            <button 
+              onClick={toggleNotifications}
+              className="relative p-2 text-gray-600 hover:text-green-700 transition-colors"
+            >
+              <FontAwesomeIcon icon={faBell} size="lg" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+>>>>>>> upstream/main
 
-          {isDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-56 bg-white shadow-lg rounded-md z-50 overflow-hidden">
-              <div className="px-4 py-3 border-b">
-                <p className="font-medium">{farmer?.name || 'User'}</p>
-                <p className="text-sm text-gray-600 truncate">{farmer?.email || ''}</p>
+            {isNotificationOpen && (
+              <div className="absolute right-0 mt-2 w-80 bg-white shadow-lg rounded-md z-50 overflow-hidden">
+                <div className="px-4 py-3 border-b bg-green-50">
+                  <h3 className="font-semibold text-green-800">Notifications</h3>
+                </div>
+                <div className="max-h-96 overflow-y-auto">
+                  {notifications.length > 0 ? (
+                    notifications.map((notification) => (
+                      <div
+                        key={notification.id}
+                        onClick={() => handleNotificationClick(notification)}
+                        className={`p-4 border-b cursor-pointer hover:bg-gray-50 transition-colors ${
+                          !notification.read ? 'bg-blue-50' : ''
+                        }`}
+                      >
+                        <div className="flex justify-between items-start mb-1">
+                          <h4 className="font-semibold text-gray-800">{notification.title}</h4>
+                          <span className="text-xs text-gray-500">
+                            {formatTime(notification.timestamp)}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600">{notification.message}</p>
+                        <div className="mt-2">
+                          <span className={`inline-block px-2 py-1 text-xs rounded-full ${
+                            notification.type === 'order' 
+                              ? 'bg-green-100 text-green-800'
+                              : notification.type === 'update'
+                              ? 'bg-blue-100 text-blue-800'
+                              : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {notification.type}
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-4 text-center text-gray-500">
+                      No notifications
+                    </div>
+                  )}
+                </div>
+                <div className="px-4 py-2 border-t bg-gray-50">
+                  <Link 
+                    to="/farmer/notifications" 
+                    className="text-sm text-green-600 hover:text-green-800 font-medium"
+                  >
+                    View All Notifications
+                  </Link>
+                </div>
               </div>
-              <Link to="/farmer/profile" className="block px-4 py-2 hover:bg-gray-100 text-gray-700">
-                <FontAwesomeIcon icon={faUserCircle} className="mr-2" />
-                My Profile
-              </Link>
-              <Link to="/farmer/products" className="block px-4 py-2 hover:bg-gray-100 text-gray-700">
-                <FontAwesomeIcon icon={faBoxOpen} className="mr-2" />
-                My Crops
-              </Link>
-              <button onClick={handleLogout} className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700 border-t">
-                <FontAwesomeIcon icon={faSignOutAlt} className="mr-2" />
-                Logout
-              </button>
-            </div>
-          )}
+            )}
+          </div>
+
+          {/* Profile Dropdown */}
+          <div className="relative" ref={dropdownRef}>
+            <button onClick={toggleDropdown} className="flex items-center">
+              <FontAwesomeIcon icon={faUserCircle} size="lg" className="text-gray-600 hover:text-gray-800" />
+              <span className="ml-2 hidden md:inline">{farmer?.name || 'Farmer'}</span>
+            </button>
+
+            {isDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-56 bg-white shadow-lg rounded-md z-50 overflow-hidden">
+                <div className="px-4 py-3 border-b">
+                  <p className="font-medium">{farmer?.name || 'User'}</p>
+                  <p className="text-sm text-gray-600 truncate">{farmer?.email || ''}</p>
+                </div>
+                <Link to="/farmer/profile" className="block px-4 py-2 hover:bg-gray-100 text-gray-700">
+                  <FontAwesomeIcon icon={faUserCircle} className="mr-2" />
+                  My Profile
+                </Link>
+                <Link to="/farmer/products" className="block px-4 py-2 hover:bg-gray-100 text-gray-700">
+                  <FontAwesomeIcon icon={faBoxOpen} className="mr-2" />
+                  My Crops
+                </Link>
+                <Link to="/farmer/orders" className="block px-4 py-2 hover:bg-gray-100 text-gray-700">
+                  <FontAwesomeIcon icon={faBell} className="mr-2" />
+                  Orders & Notifications
+                </Link>
+                <button onClick={handleLogout} className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700 border-t">
+                  <FontAwesomeIcon icon={faSignOutAlt} className="mr-2" />
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
@@ -258,6 +459,7 @@ function FarmerHomePage() {
       </main>
 
       {/* Footer */}
+<<<<<<< HEAD
 <footer className="w-full bg-green-800 text-white py-12">
   <div className="max-w-7xl mx-auto px-4 md:px-8">
     <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -336,6 +538,86 @@ function FarmerHomePage() {
     </div>
   </div>
 </footer>
+=======
+      <footer className="w-full bg-green-800 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4 md:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            
+            {/* Logo and Description */}
+            <div className="space-y-4">
+              <div className="flex items-center">
+                <FontAwesomeIcon icon={faLeaf} size="lg" className="text-green-300 mr-2" />
+                <span className="text-xl font-bold text-green-100">CropBoom</span>
+              </div>
+              <p className="text-green-200">
+                Empowering farmers with AI-driven insights, tools, and marketplace opportunities for a better harvest.
+              </p>
+              <div className="flex space-x-4">
+                <a href="#" className="text-green-300 hover:text-white transition-colors">
+                  <FontAwesomeIcon icon={faFacebookF} />
+                </a>
+                <a href="#" className="text-green-300 hover:text-white transition-colors">
+                  <FontAwesomeIcon icon={faTwitter} />
+                </a>
+                <a href="#" className="text-green-300 hover:text-white transition-colors">
+                  <FontAwesomeIcon icon={faInstagram} />
+                </a>
+                <a href="#" className="text-green-300 hover:text-white transition-colors">
+                  <FontAwesomeIcon icon={faLinkedinIn} />
+                </a>
+              </div>
+            </div>
+
+            {/* Farmer Tools / Quick Links */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4 text-green-100">Quick Links</h3>
+              <ul className="space-y-2">
+                <li><Link to="/farmer/shop" className="text-green-300 hover:text-white transition-colors">Farmer Shop</Link></li>
+                <li><Link to="/farmer/crop-listings" className="text-green-300 hover:text-white transition-colors">My Crops</Link></li>
+                <li><Link to="/crop-recommendation" className="text-green-300 hover:text-white transition-colors">Crop Recommendation</Link></li>
+                <li><Link to="/yield-prediction" className="text-green-300 hover:text-white transition-colors">Yield Prediction</Link></li>
+                <li><Link to="/disease-prediction" className="text-green-300 hover:text-white transition-colors">Disease Prediction</Link></li>
+              </ul>
+            </div>
+
+            {/* Support & Resources */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4 text-green-100">Resources</h3>
+              <ul className="space-y-2">
+                <li><Link to="/faq" className="text-green-300 hover:text-white transition-colors">Help Center</Link></li>
+                <li><Link to="/weather" className="text-green-300 hover:text-white transition-colors">Weather Info</Link></li>
+                <li><Link to="/community" className="text-green-300 hover:text-white transition-colors">Community Forum</Link></li>
+                <li><Link to="/tutorials" className="text-green-300 hover:text-white transition-colors">Tutorials</Link></li>
+              </ul>
+            </div>
+
+            {/* Contact Info */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4 text-green-100">Contact Support</h3>
+              <address className="not-italic space-y-2 text-green-300">
+                <p className="flex items-start">
+                  <FontAwesomeIcon icon={faLocationDot} className="mt-1 mr-2" />
+                  <span>AgriTech Hub, Farmer City, IN 452001</span>
+                </p>
+                <p className="flex items-center">
+                  <FontAwesomeIcon icon={faPhoneAlt} className="mr-2" />
+                  <a href="tel:+918888888888">+91 88888 88888</a>
+                </p>
+                <p className="flex items-center">
+                  <FontAwesomeIcon icon={faEnvelope} className="mr-2" />
+                  <a href="mailto:support@cropboom.com">support@cropboom.com</a>
+                </p>
+              </address>
+            </div>
+          </div>
+
+          {/* Copyright */}
+          <div className="border-t border-green-700 mt-8 pt-8 text-center text-green-300">
+            <p>&copy; {new Date().getFullYear()} CropBoom. Empowering Farmers for Tomorrow.</p>
+          </div>
+        </div>
+      </footer>
+>>>>>>> upstream/main
     </div>
   );
 }

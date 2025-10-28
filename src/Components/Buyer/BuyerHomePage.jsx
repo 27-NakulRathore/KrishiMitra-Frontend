@@ -142,10 +142,17 @@ function BuyerProfile() {
         <div className="min-h-screen bg-green-50 flex flex-col">
             <header className="bg-white shadow px-6 py-4">
                 <div className="flex justify-between items-center">
-                    <Link to="/" className="text-green-700 font-bold text-2xl flex items-center hover:opacity-80">
-                        <FontAwesomeIcon icon={faLeaf} className="mr-2 text-green-600 animate-pulse" />
-                        CropBoom
-                    </Link>
+                <div className="flex items-center">
+          <div className="relative">
+            <FontAwesomeIcon 
+              icon={faLeaf} 
+              size="lg" 
+              className="text-green-600 mr-2" 
+            />
+           
+          </div>
+          <span className="text-xl font-bold text-green-700">Krishiमित्र</span>
+        </div>
 
                     <div className="w-full max-w-md mx-4 relative">
                         <input
