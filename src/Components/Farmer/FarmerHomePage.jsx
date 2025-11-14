@@ -246,15 +246,15 @@ function FarmerHomePage() {
       {/* Header */}
       <header className="bg-white shadow-md py-4 px-6 flex items-center justify-between">
         <div className="flex items-center">
-          <div className="relative">
-            <FontAwesomeIcon 
-              icon={faLeaf} 
-              size="lg" 
-              className="text-green-600 mr-2" 
-            />
-          </div>
-          <span className="text-xl font-bold text-green-700">Krishiमित्र</span>
-        </div>
+                             <div className="flex items-center">
+                                 <FontAwesomeIcon 
+                                     icon={faLeaf} 
+                                     size="2xl" 
+                                     className="text-green-600 mr-3" 
+                                 />
+                                 <span className="text-2xl font-bold text-green-700">Krishiमित्र</span>
+                             </div>
+                         </div>
 
         {/* Weather Section */}
         {weather && (
@@ -458,12 +458,17 @@ function FarmerHomePage() {
         </div>
       </main>
 
+<<<<<<< HEAD
       {/* Footer */}
 <<<<<<< HEAD
+=======
+     {/* Footer */}
+>>>>>>> upstream/main
 <footer className="w-full bg-green-800 text-white py-12">
   <div className="max-w-7xl mx-auto px-4 md:px-8">
     <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
       
+<<<<<<< HEAD
       {/* Logo and Description */}
       <div className="space-y-4">
         <div className="flex items-center">
@@ -614,9 +619,98 @@ function FarmerHomePage() {
           {/* Copyright */}
           <div className="border-t border-green-700 mt-8 pt-8 text-center text-green-300">
             <p>&copy; {new Date().getFullYear()} CropBoom. Empowering Farmers for Tomorrow.</p>
+=======
+      {/* Brand & Social Links */}
+      <div className="md:col-span-1">
+        <div className="flex items-center mb-4">
+          <div className="relative">
+            <FontAwesomeIcon 
+              icon={faLeaf} 
+              size="lg" 
+              className="text-green-300 mr-2" 
+            />
+>>>>>>> upstream/main
           </div>
+          <span className="text-xl font-bold text-green-100">Krishiमित्र</span>
         </div>
+<<<<<<< HEAD
       </footer>
+>>>>>>> upstream/main
+=======
+        <p className="text-green-200 mb-4">
+          Empowering farmers with AI-driven insights, tools, and marketplace opportunities for a better harvest.
+        </p>
+        <div className="flex space-x-4">
+          <a href="#" className="text-green-300 hover:text-white transition-colors">
+            <FontAwesomeIcon icon={faFacebookF} />
+          </a>
+          <a href="#" className="text-green-300 hover:text-white transition-colors">
+            <FontAwesomeIcon icon={faTwitter} />
+          </a>
+          <a href="#" className="text-green-300 hover:text-white transition-colors">
+            <FontAwesomeIcon icon={faInstagram} />
+          </a>
+          <a href="#" className="text-green-300 hover:text-white transition-colors">
+            <FontAwesomeIcon icon={faLinkedinIn} />
+          </a>
+        </div>
+      </div>
+
+      {/* Farmer Tools / Quick Links */}
+      <div>
+        <h3 className="text-lg font-semibold mb-4 text-green-100">Quick Links</h3>
+        <ul className="space-y-2">
+          <li><Link to="/farmer/shop" className="text-green-300 hover:text-white transition-colors">Farmer Shop</Link></li>
+          <li><Link to="/farmer/crop-listings" className="text-green-300 hover:text-white transition-colors">My Crops</Link></li>
+          <li><Link to="/crop-recommendation" className="text-green-300 hover:text-white transition-colors">Crop Recommendation</Link></li>
+          <li><Link to="/yield-prediction" className="text-green-300 hover:text-white transition-colors">Yield Prediction</Link></li>
+          <li><Link to="/disease-prediction" className="text-green-300 hover:text-white transition-colors">Disease Prediction</Link></li>
+        </ul>
+      </div>
+
+      {/* Support & Resources */}
+      <div>
+        <h3 className="text-lg font-semibold mb-4 text-green-100">Resources</h3>
+        <ul className="space-y-2">
+          <li><Link to="/faq" className="text-green-300 hover:text-white transition-colors">Help Center</Link></li>
+          <li><Link to="/weather" className="text-green-300 hover:text-white transition-colors">Weather Info</Link></li>
+          <li><Link to="/community" className="text-green-300 hover:text-white transition-colors">Community Forum</Link></li>
+          <li><Link to="/tutorials" className="text-green-300 hover:text-white transition-colors">Tutorials</Link></li>
+        </ul>
+      </div>
+
+      {/* Contact Info */}
+      <div>
+        <h3 className="text-lg font-semibold mb-4 text-green-100">Contact Support</h3>
+        <address className="not-italic space-y-2 text-green-300">
+          <p className="flex items-start">
+            <FontAwesomeIcon icon={faLocationDot} className="mt-1 mr-2" />
+            <span>AgriTech Hub, Farmer City, IN 452001</span>
+          </p>
+          <p className="flex items-center">
+            <FontAwesomeIcon icon={faPhoneAlt} className="mr-2" />
+            <a href="tel:+918888888888">+91 88888 88888</a>
+          </p>
+          <p className="flex items-center">
+            <FontAwesomeIcon icon={faEnvelope} className="mr-2" />
+            <a href="mailto:support@cropboom.com">support@cropboom.com</a>
+          </p>
+        </address>
+      </div>
+    </div>
+
+    {/* Copyright */}
+    <div className="border-t border-green-700 mt-8 pt-8 text-center text-green-300">
+      <p>&copy; {new Date().getFullYear()} CropBoom. Empowering Farmers for Tomorrow.</p>
+    </div>
+  </div>
+</footer>
+          
+                           
+          
+
+         
+            
 >>>>>>> upstream/main
     </div>
   );

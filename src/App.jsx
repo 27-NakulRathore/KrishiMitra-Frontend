@@ -56,6 +56,7 @@ function App() {
       {" "}
       <Routes>
 <<<<<<< HEAD
+<<<<<<< HEAD
         {" "}
         <Route path="/" element={<Landing />} />{" "}
         <Route path="/signin" element={<SignIn />} /> {/* Registration */}{" "}
@@ -87,6 +88,9 @@ function App() {
       </Routes>{" "}
 =======
         <Route path="/" element={<FarmerHomePage/>} />
+=======
+        <Route path="/" element={<Landing />} />
+>>>>>>> upstream/main
         <Route path="/signin" element={<SignIn />} />
 
         {/* Registration */}

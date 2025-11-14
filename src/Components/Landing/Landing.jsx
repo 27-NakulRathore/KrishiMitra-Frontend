@@ -89,14 +89,13 @@ function Landing() {
         {/* Updated Logo */}
         <div className="flex items-center">
           <div className="relative">
-            <FontAwesomeIcon 
-              icon={faLeaf} 
-              size="lg" 
-              className="text-green-600 mr-2" 
-            />
-           
-          </div>
-          <span className="text-xl font-bold text-green-700">Krishiमित्र</span>
+             <FontAwesomeIcon 
+                                                 icon={faLeaf} 
+                                                 size="2xl" 
+                                                 className="text-green-600 mr-3" 
+                                             />
+                                             <span className="text-3xl font-bold text-green-700">Krishiमित्र</span>
+                                         </div>
         </div>
         <Link to="/signin" className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-md transition-colors duration-300">
           Sign In
@@ -289,7 +288,7 @@ function Landing() {
                   />
                  
                 </div>
-                <span className="text-xl font-bold text-green-100">Krishiमित्र</span>
+                <span className="text-2xl font-bold text-green-100">Krishiमित्र</span>
               </div>
               <p className="text-green-200">
                 Connecting farmers and buyers through innovative technology for a sustainable agricultural future.
