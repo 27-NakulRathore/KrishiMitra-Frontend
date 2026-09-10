@@ -6,13 +6,10 @@ import {
   faArrowLeft,
 } from "@fortawesome/free-solid-svg-icons";
 import { useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
 import apiClient from "../../api/client";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const GEMINI_API_KEY = `${import.meta.env.VITE_API_URL}/api/ai/analyze-crop`;
-const GEMINI_API_URL = `${import.meta.env.VITE_API_URL}/api/ai/analyze-crop`;
 
 // ---------------------- HELPERS: normalize / canonicalize / matchesDetected ----------------------
 const normalize = (s) =>
@@ -49,63 +46,6 @@ const toBase64 = (file) =>
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
-
-// ---------------------- call Gemini (prompt requests DetectedCrop line explicitly) ----------------------
-async function analyzeImage(base64Image, cropName) {
-  if (!GEMINI_API_KEY) {
-    throw new Error("Gemini API key is missing. Please configure it.");
-  }
-  const prompt = `Analyze the quality of the crop in exactly 2 words (like "High Quality" or "Low Quality"). Then estimate current market price per kg in Indian Rupees (just the number range like "20-24"). Also detect the crop type shown in the image and output as: "DetectedCrop: [crop name]" (single word or short phrase). Format response exactly as:
-
-Quality: [2 words]
-Price: ₹[range]
-DetectedCrop: [name]
-
-Only output those lines and nothing else. Do not add extra commentary.`;
-
-  try {
-    const response = await axios.post(
-      `${GEMINI_API_URL}?key=${GEMINI_API_KEY}`,
-      {
-        contents: [
-          {
-            parts: [
-              {
-                inline_data: {
-                  mime_type: "image/jpeg",
-                  data: base64Image,
-                },
-              },
-              {
-                text: prompt,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    const result = response.data;
-    // Note: Gemini structure can vary; we're reading a likely candidate path
-    if (result?.candidates?.[0]?.content?.parts?.[0]?.text) {
-      return { analysis: result.candidates[0].content.parts[0].text };
-    }
-    // fallback: sometimes text may be in another part
-    if (result?.candidates?.[0]?.content?.parts) {
-      const textPart = result.candidates[0].content.parts.find((p) => p.text);
-      if (textPart?.text) return { analysis: textPart.text };
-    }
-    return { error: "Unexpected response from Gemini" };
-  } catch (error) {
-    console.error("Error calling Gemini API:", error);
-    return { error: error.message || "Failed to analyze image" };
-  }
-}
 
 function UploadCropFormSimplified() {
   const [cropName, setCropName] = useState("");
@@ -403,9 +343,6 @@ function UploadCropFormSimplified() {
   };
 
   useEffect(() => {
-    if (!GEMINI_API_KEY) {
-      setError("Gemini API key is missing");
-    }
     return () => {
       if (imagePreview) URL.revokeObjectURL(imagePreview);
     };

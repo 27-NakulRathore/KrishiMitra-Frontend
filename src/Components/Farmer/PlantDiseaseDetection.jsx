@@ -2,58 +2,38 @@ import React, { useState, useCallback } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLeaf, faTimes, faArrowLeft, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../api/client';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const TRANSLATE_API = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
-
+// Translation runs on the backend (POST /api/ai/translate) rather than calling Gemini from the
+// browser. Vite inlines every VITE_* variable into the published bundle, so a Gemini key used
+// here would be readable by every visitor. The key now lives only in the server environment.
 async function translateText(text, targetLang = "hi") {
   try {
-    const prompt = `Translate the following plant disease detection report to ${targetLang === "hi" ? "Hindi" : "English"}.
-    Keep technical meaning accurate and simple for farmers. Only return translated text.
-
-    Text:
-    ${text}
-    `;
-
-    const response = await axios.post(
-      `${TRANSLATE_API}?key=${import.meta.env.VITE_GEMINI_API_KEY}`,
-      {
-        contents: [
-          {
-            parts: [{ text: prompt }]
-          }
-        ]
-      },
-      { headers: { "Content-Type": "application/json" } }
-    );
-
-    return response.data.candidates[0].content.parts[0].text || text;
+    const response = await apiClient.post('/api/ai/translate', { text, targetLang });
+    return response.data?.translatedText || text;
   } catch (err) {
+    // Returning the original text keeps the report usable if translation is unavailable.
     return text;
   }
 }
 
+async function detectDisease(imageFile, plantName) {
+  try {
+    const formData = new FormData();
+    formData.append("image", imageFile); // pass the File directly
+    formData.append("plantName", plantName);
 
+    const response = await apiClient.post('/api/disease/detect', formData, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
 
-const BACKEND_API_URL = `${import.meta.env.VITE_API_URL}/api/disease/detect`;
-
-  async function detectDisease(imageFile, plantName) {
-    try {
-      const formData = new FormData();
-      formData.append("image", imageFile); // pass the File directly
-      formData.append("plantName", plantName);
-
-      const response = await axios.post(BACKEND_API_URL, formData, {
-        headers: { "Content-Type": "multipart/form-data" }
-      });
-
-      return response.data;
-    } catch (err) {
-      console.error("Error calling backend:", err);
-      return { error: err.message || "Failed to detect disease" };
-    }
+    return response.data;
+  } catch (err) {
+    console.error("Error calling backend:", err);
+    return { error: err.response?.data?.message || err.message || "Failed to detect disease" };
+  }
 }
 
 
