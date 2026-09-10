@@ -181,9 +181,21 @@ function UploadCropFormSimplified() {
         parsedData.quality = ln.replace(/quality:/i, "").trim();
       } else if (ln.toLowerCase().startsWith("price:")) {
         parsedData.price = ln.replace(/price:/i, "").trim();
-        const priceMatch = parsedData.price.match(/\d+\s*-\s*\d+/);
-        if (priceMatch)
-          parsedData.priceRange = priceMatch[0].replace(/\s/g, "");
+        // The model writes the currency symbol on BOTH bounds, e.g. "₹25 - ₹35 per kg".
+        // A plain /\d+\s*-\s*\d+/ cannot match that, because "₹" sits between the dash and
+        // the second number — which left priceRange undefined and blocked every upload.
+        // Allow an optional currency prefix (₹, Rs, INR) before either bound.
+        const CURRENCY = "(?:₹|Rs\\.?|INR)?\\s*";
+        const priceMatch = parsedData.price.match(
+          new RegExp(CURRENCY + "(\\d+(?:\\.\\d+)?)\\s*-\\s*" + CURRENCY + "(\\d+(?:\\.\\d+)?)")
+        );
+        if (priceMatch) {
+          parsedData.priceRange = `${priceMatch[1]}-${priceMatch[2]}`;
+        } else {
+          // Single price rather than a range, e.g. "₹30 per kg".
+          const single = parsedData.price.match(new RegExp(CURRENCY + "(\\d+(?:\\.\\d+)?)"));
+          if (single) parsedData.priceRange = single[1];
+        }
       } else if (ln.toLowerCase().startsWith("detectedcrop:")) {
         parsedData.detectedCrop = ln.replace(/detectedcrop:/i, "").trim();
       } else if (ln.toLowerCase().startsWith("detected:")) {
@@ -217,7 +229,10 @@ function UploadCropFormSimplified() {
     formData.append("image", image);
     formData.append("cropName", cropName);
 
-    const res = apiClient.post(
+    // `await` matters: without it `res` is a Promise, `res.data` is undefined, and the
+    // "Invalid AI response" branch below fires on every single call regardless of what
+    // Gemini actually returned.
+    const res = await apiClient.post(
       `/api/ai/analyze-crop`,
       formData,
       {
