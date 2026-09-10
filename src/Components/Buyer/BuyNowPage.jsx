@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import apiClient from '../../api/client';
 import {
     faLeaf,
     faArrowLeft,
@@ -40,14 +41,23 @@ function BuyNowPage() {
 
         const fetchCropDetails = async (id) => {
             try {
-                const response = await fetch(`http://localhost:8080/api/crops/${id}`);
-                if(response.ok){
-                    console.log("data of crop id is successfully fetched [buynowpage]");
-                }
-                if (!response.ok) throw new Error('Failed to fetch crop details');
-                const data = await response.json();
-                setCrops([data]);
-                setQuantities({ [data.id]: 1 });
+                const response = await apiClient.get(`/api/crops/${id}`);
+                const data = response.data;
+                const mapped = {
+                    id: data.id,
+                    cropName: data.cropName,
+                    price: data.pricePerKg,
+                    priceRange: data.priceRange,
+                    unit: data.unit,
+                    address: data.address,
+                    cropImageUrl: data.cropImageUrl,
+                    farmerName: data.farmerName,
+                    farmerEmail: data.farmerEmail,
+                    availableQuantity: data.quantity
+                };
+
+                setCrops([mapped]);
+                setQuantities({ [mapped.id]: 1 });
             } catch (err) {
                 console.error('Error fetching crop:', err);
                 setError('Failed to load crop details');
@@ -103,137 +113,96 @@ function BuyNowPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
-        
-           // Check if crop exists and is valid
-        if (!crops.length || !crops[0]?.id) {
-            toast.error('Invalid crop selection. Please refresh the page.');
-            setIsSubmitting(false);
-            return;
-        }
-            // Validate form before submission
-        const formErrors = validateForm();
-        if (formErrors.length > 0) {
-            toast.error(formErrors.join('\n'));
-            setIsSubmitting(false);
-            return;
+
+        const buyerEmail = localStorage.getItem("email");
+        const crop = crops[0];
+        if (!buyerEmail) { toast.error("Please login"); navigate("/signin"); setIsSubmitting(false); return; }
+        if (!crop?.farmerEmail) { toast.error("Farmer info missing"); setIsSubmitting(false); return; }
+
+        // compute quantityInKg and numericPrice (reuse your calculations)
+        const unit = (crop.unit || "kg").toLowerCase();
+        const conversionFactor = unitConversionToKg[unit] || 1;
+        const quantityInKg = (quantities[crop.id] || 1) * conversionFactor;
+
+        let numericPrice = 0;
+        if (crop.price && crop.price > 0) numericPrice = crop.price;
+        else if (crop.priceRange) {
+            const parts = crop.priceRange.split('-').map(p => parseFloat(p));
+            numericPrice = parts.length === 2 ? (parts[0] + parts[1]) / 2 : parseFloat(crop.priceRange);
         }
 
-        const buyerEmail = localStorage.getItem('email');
-        if (!buyerEmail) {
-            toast.error('Please login to place an order');
-            navigate('/signin');
-            setIsSubmitting(false);
-            return;
-        }
+        const orderPayload = {
+            cropId: crop.id,
+            farmerEmail: crop.farmerEmail,
+            buyerEmail: buyerEmail,
+            quantity: quantityInKg,
+            totalPrice: Number((numericPrice * quantityInKg).toFixed(2)),
+            deliveryAddress,
+            deliveryDate,
+            paymentMethod // 'cash_on_delivery' or 'online_payment'
+        };
 
         try {
-            const crop = crops[0];
-            const unit = crop.unit.toLowerCase();
-            const conversionFactor = unitConversionToKg[unit] || 1;
-            const quantityInKg = (quantities[crop.id] || 1) * conversionFactor;
-
-            // Calculate price
-            let numericPrice;
-            if (crop.price && crop.price > 0) {
-                numericPrice = crop.price;
-            } else if (crop.priceRange) {
-                const parts = crop.priceRange.split('-').map(p => parseFloat(p));
-                numericPrice = parts.length === 2 ? (parts[0] + parts[1]) / 2 : parseFloat(crop.priceRange);
-            } else {
-                numericPrice = 0;
+            if (paymentMethod === "online_payment") {
+            // create razorpay order at backend
+            let rpOrder;
+            try {
+                const createRes = await apiClient.post(`/api/payments/create-order`, { amount: orderPayload.totalPrice });
+                rpOrder = createRes.data;
+            } catch (err) {
+                throw new Error(err.response?.data || "Failed to init payment");
             }
 
-            const orderData = {
-                cropId: crop.id,
-                farmerId: crop.farmer.id,
-                buyerEmail: buyerEmail,
-                quantity: quantityInKg,
-                totalPrice: (numericPrice * quantityInKg).toFixed(2),
-                deliveryAddress: deliveryAddress,
-                deliveryDate: deliveryDate,
-                paymentMethod: paymentMethod
-            };
-
-            console.log("Sending order data:", orderData);
-
-            const response = await fetch('http://localhost:8080/api/orders', {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                body: JSON.stringify(orderData)
-            });
-
-            // First read the response as text
-            const responseText = await response.text();
-            
-            if (!response.ok) {
-                let errorMessage = 'Order failed';
+            // open Razorpay
+            const options = {
+                key: rpOrder.key,
+                amount: rpOrder.amount,
+                currency: rpOrder.currency,
+                order_id: rpOrder.orderId,
+                name: "KrishiMitra",
+                description: `Payment for ${crop.cropName}`,
+                handler: async function (resp) {
                 try {
-                    // Try to parse as JSON to get detailed error messages
-                    const errorData = JSON.parse(responseText);
-                    errorMessage = errorData.message || 
-                                  (errorData.errors ? errorData.errors.join('\n') : responseText);
-                } catch {
-                    // If not JSON, use the raw text
-                    errorMessage = responseText;
+                    // verify with backend
+                    await apiClient.post(`/api/payments/verify`, {
+                        razorpayOrderId: resp.razorpay_order_id,
+                        razorpayPaymentId: resp.razorpay_payment_id,
+                        razorpaySignature: resp.razorpay_signature,
+                        bookingId: null // optional, or send some temp id if you use booking
+                    });
+
+                    // payment ok -> create DB order
+                    await apiClient.post(`/api/orders`, { ...orderPayload, paymentMethod: "online_payment" });
+                    toast.success("Order placed!");
+                    navigate("/buyer/orders");
+                } catch (err) {
+                    toast.error(err.response?.data || "Payment verification failed");
                 }
-                throw new Error(errorMessage);
+                },
+                prefill: { email: buyerEmail }
+            };
+            const rzp = new window.Razorpay(options);
+            rzp.open();
+
+            } else { // cash_on_delivery
+            // create DB order immediately with status PENDING. Backend must not require payment verification for COD
+            try {
+                await apiClient.post(`/api/orders`, orderPayload);
+                toast.success("Order placed (COD). Farmer will confirm shortly.");
+                navigate("/buyer/orders");
+            } catch (err) {
+                throw new Error(err.response?.data || "Order creation failed");
             }
-
-            // If successful, parse the response
-            const responseData = JSON.parse(responseText);
-            console.log("Order successful:", responseData);
-
-            // Show success message
-            toast.success(
-                <div>
-                    <p>Order placed successfully!</p>
-                    <p>Order ID: {responseData.id}</p>
-                    <button
-                        onClick={() => {
-                            navigate('/buyer/orders');
-                            toast.dismiss();
-                        }}
-                        className="mt-2 text-sm underline text-blue-600"
-                    >
-                        View Order Status
-                    </button>
-                </div>,
-                {
-                    autoClose: false,
-                    closeButton: true
-                }
-            );
-
-            // Clear cart if coming from cart
-            if (location.state?.fromCart) {
-                localStorage.removeItem(`cart-${buyerEmail}`);
             }
-
-            // Redirect after 3 seconds
-            setTimeout(() => navigate('/buyer/orders'), 3000);
         } catch (err) {
-            console.error('Error placing order:', {
-                error: err,
-                message: err.message,
-                stack: err.stack
-            });
-            
-            // User-friendly error messages
-            let userMessage = err.message || 'Failed to place order. Please try again.';
-            if (err.message.includes('deliveryDate')) {
-                userMessage = 'Invalid delivery date. Please choose a future date.';
-            } else if (err.message.includes('quantity')) {
-                userMessage = 'Invalid quantity. Please check your input.';
-            }
-            
-            toast.error(userMessage);
+            console.error("Error placing order:", err);
+            toast.error(err.message || "Failed to place order");
         } finally {
             setIsSubmitting(false);
         }
     };
+
+
 
     if (loading) {
         return (
@@ -272,7 +241,7 @@ function BuyNowPage() {
                     </button>
                     <div className="text-green-700 font-bold text-2xl flex items-center">
                         <FontAwesomeIcon icon={faLeaf} className="mr-2 text-green-600" />
-                        CropBoom
+                        KrishiMitra
                     </div>
                     <div className="w-8"></div>
                 </div>
@@ -287,13 +256,19 @@ function BuyNowPage() {
                             <div key={crop.id} className="bg-white p-4 rounded shadow mb-4">
                                 <div className="flex items-start mb-4">
                                     <img
-                                        src={`data:image/jpeg;base64,${crop.cropImage}`}
+                                        src={
+                                            crop.cropImageUrl
+                                                ? `${import.meta.env.VITE_API_URL}${crop.cropImageUrl}`
+                                                : crop.imageData
+                                                    ? `data:image/jpeg;base64,${crop.imageData}`
+                                                    : undefined
+                                        }
                                         alt={crop.cropName}
                                         className="w-24 h-24 rounded object-cover mr-4"
                                     />
                                     <div>
                                         <h3 className="font-bold">{crop.cropName}</h3>
-                                        <p className="text-sm text-gray-600">Sold by: {crop.farmer.name}</p>
+                                        <p className="text-sm text-gray-600">Sold by: {crop.farmerName || "Unknown Farmer"}</p>
                                         <p className="text-sm text-gray-600">Location: {crop.address}</p>
                                         {(!crop.price || crop.price <= 0) && !crop.priceRange ? (
                                             '⚠ Price not available'
@@ -321,14 +296,24 @@ function BuyNowPage() {
                                         max={crop.availableQuantity}
                                         value={quantities[crop.id] || 1}
                                         onChange={(e) => {
-                                            let val = parseInt(e.target.value, 10);
-                                            if (isNaN(val) || val < 1) val = 1;
-                                            if (val > crop.availableQuantity) val = crop.availableQuantity;
+                                            let val = parseInt(e.target.value);
+
+                                            if (!val || val < 1) {
+                                                val = 1;
+                                            }
+
+                                            // Absolutely prevent exceeding available quantity
+                                            if (val > crop.availableQuantity) {
+                                                toast.error(`Only ${crop.availableQuantity} ${crop.unit} available`);
+                                                val = crop.availableQuantity;
+                                            }
+
                                             setQuantities(prev => ({ ...prev, [crop.id]: val }));
                                         }}
                                         className="border border-gray-300 rounded px-2 py-1 w-20"
                                         required
                                     />
+
                                     <span className="ml-2">{crop.unit}</span>
                                 </div>
 
@@ -411,7 +396,8 @@ function BuyNowPage() {
                                         type="radio"
                                         name="paymentMethod"
                                         value="online_payment"
-                                        disabled
+                                        checked={paymentMethod === "online_payment"}
+                                        onChange={() => setPaymentMethod("online_payment")}
                                         className="mr-2"
                                     />
                                     Online Payment (Coming Soon)

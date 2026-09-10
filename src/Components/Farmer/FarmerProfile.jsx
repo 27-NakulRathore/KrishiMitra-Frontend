@@ -17,6 +17,7 @@ import {
 
 // Import your local background image
 import farmerBackground from '../../assets/farmerProfileBg.png';
+import apiClient from '../../api/client';
 
 function FarmerProfile() {
   const navigate = useNavigate();
@@ -26,15 +27,9 @@ function FarmerProfile() {
   useEffect(() => {
     const email = localStorage.getItem("email");
     if (email) {
-      fetch(`http://localhost:8080/api/farmer/${email}`)
+      apiClient.get(`/api/farmer/${email}`)
         .then((res) => {
-          if (!res.ok) {
-            throw new Error(`Failed to fetch farmer: ${res.status}`);
-          }
-          return res.json();
-        })
-        .then((data) => {
-          setFarmer(data);
+          setFarmer(res.data);
           setLoading(false);
         })
         .catch((err) => {

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faEye, faCheckCircle, faMapMarkerAlt, faChartLine, faStar, faCalendarAlt, faArrowLeft, faLeaf } from '@fortawesome/free-solid-svg-icons';
-import axios from 'axios';
+import apiClient from '../../api/client';
 
 function MyCropListings() {
   const [listings, setListings] = useState([]);
@@ -18,7 +18,7 @@ function MyCropListings() {
     navigate('/farmer/shop', { state: { email } });
   };
 
-  // ✅ Helper function to safely parse dates
+  //Helper function to safely parse dates
   const parseDate = (value) => {
     const date = new Date(value);
     return isNaN(date.getTime()) ? null : date;
@@ -28,14 +28,10 @@ function MyCropListings() {
     const fetchListings = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem('authToken');
         const encodedEmail = encodeURIComponent(email);
 
-        const response = await axios.get(
-          `http://localhost:8080/api/crops/farmer/${encodedEmail}/listings`,
-          {
-            headers: { 'Authorization': `Bearer ${token}` }
-          }
+        const response = await apiClient.get(
+          `/api/crops/farmer/${encodedEmail}/listings`
         );
 
         const listings = Array.isArray(response.data) ? response.data : [];
@@ -49,10 +45,10 @@ function MyCropListings() {
           priceRange: listing.priceRange || null,
           qualityRating: listing.qualityRating || null,
           address: listing.address || 'Not specified',
-          listedOn: parseDate(listing.listedOn) || new Date(), // ✅ safer date
-          analysisDate: parseDate(listing.analysisDate),       // ✅ safer date
-          imageUrl: listing.imageData 
-            ? `data:image/jpeg;base64,${listing.imageData}`
+          listedOn: parseDate(listing.listedOn) || new Date(),
+          analysisDate: parseDate(listing.analysisDate),      
+          imageUrl: listing.cropImageUrl
+            ? `${import.meta.env.VITE_API_URL}${listing.cropImageUrl}`
             : null
         }));
 
@@ -75,9 +71,7 @@ function MyCropListings() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:8080/api/crops/${id}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
-      });
+      await apiClient.delete(`/api/crops/${id}`);
 
       setListings(listings.filter(listing => listing.id !== id));
       setConfirmingDelete(null);
@@ -89,10 +83,9 @@ function MyCropListings() {
 
   const handleMarkAsSold = async (id) => {
     try {
-      await axios.patch(
-        `http://localhost:8080/api/crops/${id}/status`,
-        { status: 'sold' },
-        { headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }}
+      await apiClient.patch(
+        `/api/crops/${id}/status`,
+        { status: 'sold' }
       );
 
       setListings(listings.map(listing =>
@@ -105,7 +98,7 @@ function MyCropListings() {
     }
   };
 
-  // ✅ Robust date formatter
+  //date formatter
   const formatDate = (date) => {
     if (!(date instanceof Date) || isNaN(date.getTime())) return 'N/A';
     try {
@@ -167,7 +160,7 @@ function MyCropListings() {
             <p className="text-gray-500 mb-6">Start by uploading your first crop to get visibility in the marketplace.</p>
             <Link
               to="/farmer/upload-crop"
-              state={{ email }}  // ✅ pass email via navigation state
+              state={{ email }}  // pass email via navigation state
               className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg inline-flex items-center"
             >
               <FontAwesomeIcon icon={faLeaf} className="mr-2" />

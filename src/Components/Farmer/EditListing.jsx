@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faSave } from '@fortawesome/free-solid-svg-icons';
-import axios from 'axios';
+import apiClient from '../../api/client';
 
 function EditListing() {
   const { id } = useParams();
@@ -20,10 +20,7 @@ function EditListing() {
       const fetchListing = async () => {
         try {
           setLoading(true);
-          const token = localStorage.getItem('authToken');
-          const response = await axios.get(`http://localhost:8080/api/crops/${id}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
+          const response = await apiClient.get(`/api/crops/${id}`);
 
           setListing(response.data);
           setLoading(false);
@@ -66,8 +63,7 @@ function EditListing() {
     e.preventDefault();
     try {
       setLoading(true);
-      const token = localStorage.getItem('authToken');
-      
+
       const updatedFields = {
         cropName: listing.cropName,
         quantity: listing.quantity,
@@ -80,15 +76,10 @@ function EditListing() {
         analysisDate: listing.analysisDate ? listing.analysisDate.toISOString() : null,
       };
 
-      await axios.put(
-        `http://localhost:8080/api/crops/${id}`,
-        updatedFields,
-        { headers: { 'Authorization': `Bearer ${token}` } }
-      );
+      await apiClient.put(`/api/crops/${id}`, updatedFields);
 
       setSuccess(true);
 
-      // **Added this line to define updatedListing so it won't throw error**
       const updatedListing = listing;
 
       setTimeout(() => {

@@ -1,34 +1,26 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate, Link} from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faEnvelope,
-<<<<<<< HEAD
-faLocationDot,
-faPhoneAlt,
-=======
   faLocationDot,
   faPhoneAlt,
->>>>>>> upstream/main
   faLeaf,
   faTractor,
   faSignOutAlt,
   faUserCircle,
-  faBoxOpen,
+  
   faArrowRight,
   faBell
 } from '@fortawesome/free-solid-svg-icons';
 import { faFacebookF, faTwitter, faInstagram, faLinkedinIn } from "@fortawesome/free-brands-svg-icons";
 import PropTypes from 'prop-types';
-
-// Import placeholder images (you should replace these with your actual images)
 import cropRecommendationImg from '../../assets/croprecom.png';
-import yieldPredictionImg from '../../assets/yield.png';
 import organicFarmingImg from '../../assets/organic.png';
 import diseasePredictionImg from '../../assets/disease.png';
-import aiChatbotImg from '../../assets/chat.png';
 import farmerShopImg from '../../assets/shop.png';
 import cropprice from '../../assets/cropprice.png'
+import apiClient from '../../api/client';
 
 function FarmerHomePage() {
   const navigate = useNavigate();
@@ -39,21 +31,28 @@ function FarmerHomePage() {
   const email = localStorage.getItem("email") || 'Farmer';
   const [farmer, setFarmer] = useState(null);
   const [weather, setWeather] = useState(null);
-<<<<<<< HEAD
-=======
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
->>>>>>> upstream/main
 
   useEffect(() => {
-    const email = localStorage.getItem("email");
-    if (email) {
-      fetch(`http://localhost:8080/api/farmer/${email}`)
-        .then(res => res.json())
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+
+    if (!token || role !== "farmer") {
+        navigate("/signin", { replace: true });
+    }
+}, []);
+
+
+  useEffect(() => {
+    const emailStored = localStorage.getItem("email");
+    if (emailStored) {
+      apiClient.get(`/api/farmer/${emailStored}`)
+        .then(res => res.data)
         .then(data => {
           setFarmer(data);
 
-          // Fetch weather based on farmer's location
+          // Fetch weather based on farmers location
           if (data?.location) {
             const apiKey = import.meta.env.VITE_OPENWEATHER_API_KEY;
             fetch(
@@ -71,52 +70,27 @@ function FarmerHomePage() {
               })
               .catch(err => console.error("Weather fetch error:", err));
           }
-<<<<<<< HEAD
-=======
 
           // Fetch notifications for the farmer
-          fetchNotifications(data.id || email);
->>>>>>> upstream/main
+          fetchNotifications(data.id || emailStored);
+
         })
         .catch(err => console.error("Failed to load farmer", err));
     }
   }, []);
 
-  const fetchNotifications = (farmerId) => {
-    // Mock notifications - replace with actual API call
-    const mockNotifications = [
-      {
-        id: 1,
-        type: 'order',
-        title: 'New Order Received',
-        message: 'Your crop "Organic Tomatoes" has been booked by John Doe',
-        timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
-        read: false,
-        link: '/farmer/orders'
-      },
-      {
-        id: 2,
-        type: 'update',
-        title: 'Weather Alert',
-        message: 'Heavy rainfall expected in your area tomorrow',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-        read: false,
-        link: '/weather'
-      },
-      {
-        id: 3,
-        type: 'system',
-        title: 'System Update',
-        message: 'New features available in Crop Recommendation tool',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
-        read: true,
-        link: '/crop-recommendation'
-      }
-    ];
+  const fetchNotifications = async () => {
+  try {
+    const res = await apiClient.get(`/api/notifications/farmer/${email}`);
+    const data = res.data;
 
-    setNotifications(mockNotifications);
-    setUnreadCount(mockNotifications.filter(notif => !notif.read).length);
-  };
+    setNotifications(data);
+    setUnreadCount(data.filter(n => !n.read).length);
+  } catch (err) {
+    console.error("Failed to load notifications", err);
+  }
+};
+
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
@@ -132,12 +106,9 @@ function FarmerHomePage() {
   const handleClickOutside = (event) => {
     if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
       setIsDropdownOpen(false);
-<<<<<<< HEAD
-=======
     }
     if (notificationRef.current && !notificationRef.current.contains(event.target)) {
       setIsNotificationOpen(false);
->>>>>>> upstream/main
     }
   };
 
@@ -146,25 +117,25 @@ function FarmerHomePage() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+
   const handleLogout = () => {
-    const email = localStorage.getItem("email");
-    if (email) {
-      localStorage.removeItem(`cart-${email}`);
+    const emailStored = localStorage.getItem("email");
+    if (emailStored) {
+      localStorage.removeItem(`cart-${emailStored}`);
       localStorage.removeItem("email");
-<<<<<<< HEAD
     }
-   navigate("/signin", { replace: true }); 
-=======
-    }
-   navigate("/signin", { replace: true }); 
+    navigate("/signin", { replace: true });
   };
 
-  const handleNotificationClick = (notification) => {
-    if (notification.link) {
-      navigate(notification.link);
-      setIsNotificationOpen(false);
-    }
+  const handleNotificationClick = async (notification) => {
+    await fetch(`${import.meta.env.VITE_API_URL}/api/notifications/${notification.id}/read`, {
+      method: "PATCH"
+    });
+
+    navigate("/farmer/orders");
+    setIsNotificationOpen(false);
   };
+
 
   const formatTime = (timestamp) => {
     const now = new Date();
@@ -180,7 +151,6 @@ function FarmerHomePage() {
     } else {
       return `${days}d ago`;
     }
->>>>>>> upstream/main
   };
 
   // Card data matching the image style
@@ -190,11 +160,7 @@ function FarmerHomePage() {
       description: "Manage your crops - upload listings, view sales, and track bookings all in one place.",
       image: farmerShopImg,
       features: ["Upload Crops", "View Listings", "Track Sales", "Manage Bookings"],
-<<<<<<< HEAD
-      action: () => navigate('/farmer/upload-crop', { state: { email: email } })
-=======
-       action: () => navigate('/farmer/upload-crop', { state: { email: email } })
->>>>>>> upstream/main
+      action: () => navigate('/farmer/shop', { state: { email: email } })
     },
     {
       title: "Crop Recommendation",
@@ -202,13 +168,6 @@ function FarmerHomePage() {
       image: cropRecommendationImg,
       features: ["AI Powered", "Soil Analysis", "Weather Based", "Optimal Crops", "Seasonal Advice"],
       action: () => navigate('/crop-recommendation')
-    },
-    {
-      title: "Yield Prediction",
-      description: "Predict the expected yield for different crops using advanced machine learning models and historical data.",
-      image: yieldPredictionImg,
-      features: ["ML Analytics", "Historical Data", "Accurate Forecast", "Early Detection"],
-      action: () => navigate('/yield-prediction')
     },
    
     {
@@ -218,27 +177,21 @@ function FarmerHomePage() {
       features: ["Early Detection", "Treatment", "Prevention", "Plant Health"],
       action: () => navigate('/disease-prediction')
     },
-     {
-      title: "Organic Farming Guide",
-      description: "Learn sustainable organic practices—from soil preparation to eco-friendly pest control and certification processes.",
-      image: organicFarmingImg,
-      features: ["Sustainable", "Eco-friendly", "Certification", "Soil Health"],
-      action: () => navigate('/organic-guide')
-    },
     {
-      title: "AI ChatBot",
-      description: "Get instant plantation guidance and crop planning assistance from our AI assistant.",
-      image: aiChatbotImg,
-      features: ["24/7 Support", "Plantation Guide", "Crop Planning", "Instant Help"],
-      action: () => navigate('/ai-chatbot')
-    },
-     {
       title: "Crop Price Tracker",
       description: "Monitor and analyze crop prices in real-time to make informed selling decisions.",
       image: cropprice,
       features: ["Real-time Data", "Price Alerts", "Market Trends", "Historical Data"],
       action: () => navigate('/crop-price-tracker')
     },
+    {
+      title: "Organic Farming Guide",
+      description: "Learn sustainable organic practices—from soil preparation to eco-friendly pest control and certification processes.",
+      image: organicFarmingImg,
+      features: ["Sustainable", "Eco-friendly", "Certification", "Soil Health"],
+      action: () => navigate('/farmer/organic-guide')
+    },
+    
   ];
 
   return (
@@ -246,25 +199,15 @@ function FarmerHomePage() {
       {/* Header */}
       <header className="bg-white shadow-md py-4 px-6 flex items-center justify-between">
         <div className="flex items-center">
-                             <div className="flex items-center">
-                                 <FontAwesomeIcon 
-                                     icon={faLeaf} 
-                                     size="2xl" 
-                                     className="text-green-600 mr-3" 
-                                 />
-                                 <span className="text-2xl font-bold text-green-700">Krishiमित्र</span>
-                             </div>
-                         </div>
-
-        {/* Weather Section */}
-        {weather && (
-          <div className="flex items-center bg-green-100 px-3 py-1 rounded-full shadow-sm">
-            <img src={weather.icon} alt="weather" className="w-6 h-6 mr-2" />
-            <span className="text-green-700 font-medium">
-              {weather.temp}°C | {weather.condition}
-            </span>
+          <div className="flex items-center">
+            <FontAwesomeIcon
+              icon={faLeaf}
+              size="2xl"
+              className="text-green-600 mr-3"
+            />
+            <span className="text-2xl font-bold text-green-700">Krishiमित्र</span>
           </div>
-        )}
+        </div>
 
         {/* Weather Section */}
         {weather && (
@@ -286,19 +229,11 @@ function FarmerHomePage() {
           </div>
         </div>
 
-<<<<<<< HEAD
-        {/* Profile Dropdown */}
-        <div className="relative" ref={dropdownRef}>
-          <button onClick={toggleDropdown} className="flex items-center">
-            <FontAwesomeIcon icon={faUserCircle} size="lg" className="text-gray-600 hover:text-gray-800" />
-            <span className="ml-2 hidden md:inline">{farmer?.name || 'Farmer'}</span>
-          </button>
-=======
-        {/* Notification Bell and Profile */}
+        {/* Profile Dropdown & Notifications */}
         <div className="flex items-center space-x-4">
           {/* Notification Bell */}
           <div className="relative" ref={notificationRef}>
-            <button 
+            <button
               onClick={toggleNotifications}
               className="relative p-2 text-gray-600 hover:text-green-700 transition-colors"
             >
@@ -309,7 +244,6 @@ function FarmerHomePage() {
                 </span>
               )}
             </button>
->>>>>>> upstream/main
 
             {isNotificationOpen && (
               <div className="absolute right-0 mt-2 w-80 bg-white shadow-lg rounded-md z-50 overflow-hidden">
@@ -335,11 +269,11 @@ function FarmerHomePage() {
                         <p className="text-sm text-gray-600">{notification.message}</p>
                         <div className="mt-2">
                           <span className={`inline-block px-2 py-1 text-xs rounded-full ${
-                            notification.type === 'order' 
+                            notification.type === 'order'
                               ? 'bg-green-100 text-green-800'
                               : notification.type === 'update'
-                              ? 'bg-blue-100 text-blue-800'
-                              : 'bg-gray-100 text-gray-800'
+                                ? 'bg-blue-100 text-blue-800'
+                                : 'bg-gray-100 text-gray-800'
                           }`}>
                             {notification.type}
                           </span>
@@ -353,8 +287,8 @@ function FarmerHomePage() {
                   )}
                 </div>
                 <div className="px-4 py-2 border-t bg-gray-50">
-                  <Link 
-                    to="/farmer/notifications" 
+                  <Link
+                    to="/farmer/notifications"
                     className="text-sm text-green-600 hover:text-green-800 font-medium"
                   >
                     View All Notifications
@@ -381,11 +315,7 @@ function FarmerHomePage() {
                   <FontAwesomeIcon icon={faUserCircle} className="mr-2" />
                   My Profile
                 </Link>
-                <Link to="/farmer/products" className="block px-4 py-2 hover:bg-gray-100 text-gray-700">
-                  <FontAwesomeIcon icon={faBoxOpen} className="mr-2" />
-                  My Crops
-                </Link>
-                <Link to="/farmer/orders" className="block px-4 py-2 hover:bg-gray-100 text-gray-700">
+                <Link to="/farmer/bookings" className="block px-4 py-2 hover:bg-gray-100 text-gray-700">
                   <FontAwesomeIcon icon={faBell} className="mr-2" />
                   Orders & Notifications
                 </Link>
@@ -458,96 +388,11 @@ function FarmerHomePage() {
         </div>
       </main>
 
-<<<<<<< HEAD
       {/* Footer */}
-<<<<<<< HEAD
-=======
-     {/* Footer */}
->>>>>>> upstream/main
-<footer className="w-full bg-green-800 text-white py-12">
-  <div className="max-w-7xl mx-auto px-4 md:px-8">
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-      
-<<<<<<< HEAD
-      {/* Logo and Description */}
-      <div className="space-y-4">
-        <div className="flex items-center">
-          <FontAwesomeIcon icon={faLeaf} size="lg" className="text-green-300 mr-2" />
-          <span className="text-xl font-bold text-green-100">CropBoom</span>
-        </div>
-        <p className="text-green-200">
-          Empowering farmers with AI-driven insights, tools, and marketplace opportunities for a better harvest.
-        </p>
-        <div className="flex space-x-4">
-          <a href="#" className="text-green-300 hover:text-white transition-colors">
-            <FontAwesomeIcon icon={faFacebookF} />
-          </a>
-          <a href="#" className="text-green-300 hover:text-white transition-colors">
-            <FontAwesomeIcon icon={faTwitter} />
-          </a>
-          <a href="#" className="text-green-300 hover:text-white transition-colors">
-            <FontAwesomeIcon icon={faInstagram} />
-          </a>
-          <a href="#" className="text-green-300 hover:text-white transition-colors">
-            <FontAwesomeIcon icon={faLinkedinIn} />
-          </a>
-        </div>
-      </div>
-
-      {/* Farmer Tools / Quick Links */}
-      <div>
-        <h3 className="text-lg font-semibold mb-4 text-green-100">Quick Links</h3>
-        <ul className="space-y-2">
-          <li><Link to="/farmer/shop" className="text-green-300 hover:text-white transition-colors">Farmer Shop</Link></li>
-          <li><Link to="/farmer/crop-listings" className="text-green-300 hover:text-white transition-colors">My Crops</Link></li>
-          <li><Link to="/crop-recommendation" className="text-green-300 hover:text-white transition-colors">Crop Recommendation</Link></li>
-          <li><Link to="/yield-prediction" className="text-green-300 hover:text-white transition-colors">Yield Prediction</Link></li>
-          <li><Link to="/disease-prediction" className="text-green-300 hover:text-white transition-colors">Disease Prediction</Link></li>
-        </ul>
-      </div>
-
-      {/* Support & Resources */}
-      <div>
-        <h3 className="text-lg font-semibold mb-4 text-green-100">Resources</h3>
-        <ul className="space-y-2">
-          <li><Link to="/faq" className="text-green-300 hover:text-white transition-colors">Help Center</Link></li>
-          <li><Link to="/weather" className="text-green-300 hover:text-white transition-colors">Weather Info</Link></li>
-          <li><Link to="/community" className="text-green-300 hover:text-white transition-colors">Community Forum</Link></li>
-          <li><Link to="/tutorials" className="text-green-300 hover:text-white transition-colors">Tutorials</Link></li>
-        </ul>
-      </div>
-
-      {/* Contact Info */}
-      <div>
-        <h3 className="text-lg font-semibold mb-4 text-green-100">Contact Support</h3>
-        <address className="not-italic space-y-2 text-green-300">
-          <p className="flex items-start">
-            <FontAwesomeIcon icon={faLocationDot} className="mt-1 mr-2" />
-            <span>AgriTech Hub, Farmer City, IN 452001</span>
-          </p>
-          <p className="flex items-center">
-            <FontAwesomeIcon icon={faPhoneAlt} className="mr-2" />
-            <a href="tel:+918888888888">+91 88888 88888</a>
-          </p>
-          <p className="flex items-center">
-            <FontAwesomeIcon icon={faEnvelope} className="mr-2" />
-            <a href="mailto:support@cropboom.com">support@cropboom.com</a>
-          </p>
-        </address>
-      </div>
-    </div>
-
-    {/* Copyright */}
-    <div className="border-t border-green-700 mt-8 pt-8 text-center text-green-300">
-      <p>&copy; {new Date().getFullYear()} CropBoom. Empowering Farmers for Tomorrow.</p>
-    </div>
-  </div>
-</footer>
-=======
       <footer className="w-full bg-green-800 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            
+
             {/* Logo and Description */}
             <div className="space-y-4">
               <div className="flex items-center">
@@ -619,99 +464,9 @@ function FarmerHomePage() {
           {/* Copyright */}
           <div className="border-t border-green-700 mt-8 pt-8 text-center text-green-300">
             <p>&copy; {new Date().getFullYear()} CropBoom. Empowering Farmers for Tomorrow.</p>
-=======
-      {/* Brand & Social Links */}
-      <div className="md:col-span-1">
-        <div className="flex items-center mb-4">
-          <div className="relative">
-            <FontAwesomeIcon 
-              icon={faLeaf} 
-              size="lg" 
-              className="text-green-300 mr-2" 
-            />
->>>>>>> upstream/main
           </div>
-          <span className="text-xl font-bold text-green-100">Krishiमित्र</span>
         </div>
-<<<<<<< HEAD
       </footer>
->>>>>>> upstream/main
-=======
-        <p className="text-green-200 mb-4">
-          Empowering farmers with AI-driven insights, tools, and marketplace opportunities for a better harvest.
-        </p>
-        <div className="flex space-x-4">
-          <a href="#" className="text-green-300 hover:text-white transition-colors">
-            <FontAwesomeIcon icon={faFacebookF} />
-          </a>
-          <a href="#" className="text-green-300 hover:text-white transition-colors">
-            <FontAwesomeIcon icon={faTwitter} />
-          </a>
-          <a href="#" className="text-green-300 hover:text-white transition-colors">
-            <FontAwesomeIcon icon={faInstagram} />
-          </a>
-          <a href="#" className="text-green-300 hover:text-white transition-colors">
-            <FontAwesomeIcon icon={faLinkedinIn} />
-          </a>
-        </div>
-      </div>
-
-      {/* Farmer Tools / Quick Links */}
-      <div>
-        <h3 className="text-lg font-semibold mb-4 text-green-100">Quick Links</h3>
-        <ul className="space-y-2">
-          <li><Link to="/farmer/shop" className="text-green-300 hover:text-white transition-colors">Farmer Shop</Link></li>
-          <li><Link to="/farmer/crop-listings" className="text-green-300 hover:text-white transition-colors">My Crops</Link></li>
-          <li><Link to="/crop-recommendation" className="text-green-300 hover:text-white transition-colors">Crop Recommendation</Link></li>
-          <li><Link to="/yield-prediction" className="text-green-300 hover:text-white transition-colors">Yield Prediction</Link></li>
-          <li><Link to="/disease-prediction" className="text-green-300 hover:text-white transition-colors">Disease Prediction</Link></li>
-        </ul>
-      </div>
-
-      {/* Support & Resources */}
-      <div>
-        <h3 className="text-lg font-semibold mb-4 text-green-100">Resources</h3>
-        <ul className="space-y-2">
-          <li><Link to="/faq" className="text-green-300 hover:text-white transition-colors">Help Center</Link></li>
-          <li><Link to="/weather" className="text-green-300 hover:text-white transition-colors">Weather Info</Link></li>
-          <li><Link to="/community" className="text-green-300 hover:text-white transition-colors">Community Forum</Link></li>
-          <li><Link to="/tutorials" className="text-green-300 hover:text-white transition-colors">Tutorials</Link></li>
-        </ul>
-      </div>
-
-      {/* Contact Info */}
-      <div>
-        <h3 className="text-lg font-semibold mb-4 text-green-100">Contact Support</h3>
-        <address className="not-italic space-y-2 text-green-300">
-          <p className="flex items-start">
-            <FontAwesomeIcon icon={faLocationDot} className="mt-1 mr-2" />
-            <span>AgriTech Hub, Farmer City, IN 452001</span>
-          </p>
-          <p className="flex items-center">
-            <FontAwesomeIcon icon={faPhoneAlt} className="mr-2" />
-            <a href="tel:+918888888888">+91 88888 88888</a>
-          </p>
-          <p className="flex items-center">
-            <FontAwesomeIcon icon={faEnvelope} className="mr-2" />
-            <a href="mailto:support@cropboom.com">support@cropboom.com</a>
-          </p>
-        </address>
-      </div>
-    </div>
-
-    {/* Copyright */}
-    <div className="border-t border-green-700 mt-8 pt-8 text-center text-green-300">
-      <p>&copy; {new Date().getFullYear()} CropBoom. Empowering Farmers for Tomorrow.</p>
-    </div>
-  </div>
-</footer>
-          
-                           
-          
-
-         
-            
->>>>>>> upstream/main
     </div>
   );
 }
@@ -723,6 +478,5 @@ FarmerHomePage.propTypes = {
     })
   })
 };
-
 
 export default FarmerHomePage;

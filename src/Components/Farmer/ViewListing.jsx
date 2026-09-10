@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faMapMarkerAlt, faChartLine, faStar, faCalendarAlt } from '@fortawesome/free-solid-svg-icons';
-import axios from 'axios';
+import apiClient from '../../api/client';
 
 function ViewListing() {
   const { id } = useParams();
@@ -17,10 +17,7 @@ function ViewListing() {
     const fetchListing = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem('authToken');
-        const response = await axios.get(`http://localhost:8080/api/crops/${id}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const response = await apiClient.get(`/api/crops/${id}`);
 
         if (!response.data) {
           throw new Error('No data returned from server');
@@ -32,13 +29,10 @@ function ViewListing() {
           ...data,
           listedOn: data.listedOn ? new Date(data.listedOn) : new Date(),
           analysisDate: data.analysisDate ? new Date(data.analysisDate) : null,
-          imageUrl: data.imageData
-            ? `data:image/jpeg;base64,${data.imageData}`
-            : (data.cropImage ? `data:image/jpeg;base64,${data.cropImage}` : null)
+          imageUrl: data.cropImageUrl
+            ? `${import.meta.env.VITE_API_URL}${data.cropImageUrl}`
+            : null
         };
-
-        console.log('Image data:', response.data.imageData);
-        console.log('Listing data:', listingData);
 
         setListing(listingData);
 

@@ -10,6 +10,7 @@ import {
     faIdCard,
     faBriefcase
 } from '@fortawesome/free-solid-svg-icons';
+import apiClient from '../../api/client';
 
 function BuyerProfile() {
     const navigate = useNavigate();
@@ -19,15 +20,9 @@ function BuyerProfile() {
     useEffect(() => {
         const email = localStorage.getItem("email");
         if (email) {
-            fetch(`http://localhost:8080/api/buyer/${email}`)
+            apiClient.get(`/api/buyer/${email}`)
                 .then(res => {
-                    if (!res.ok) {
-                        throw new Error(`Failed to fetch buyer: ${res.status}`);
-                    }
-                    return res.json();
-                })
-                .then(data => {
-                    setBuyer(data);
+                    setBuyer(res.data);
                     setLoading(false);
                 })
                 .catch(err => {

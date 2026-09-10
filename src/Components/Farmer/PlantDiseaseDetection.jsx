@@ -6,7 +6,38 @@ import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const BACKEND_API_URL = "http://localhost:8080/api/disease/detect";
+const TRANSLATE_API = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+
+async function translateText(text, targetLang = "hi") {
+  try {
+    const prompt = `Translate the following plant disease detection report to ${targetLang === "hi" ? "Hindi" : "English"}.
+    Keep technical meaning accurate and simple for farmers. Only return translated text.
+
+    Text:
+    ${text}
+    `;
+
+    const response = await axios.post(
+      `${TRANSLATE_API}?key=${import.meta.env.VITE_GEMINI_API_KEY}`,
+      {
+        contents: [
+          {
+            parts: [{ text: prompt }]
+          }
+        ]
+      },
+      { headers: { "Content-Type": "application/json" } }
+    );
+
+    return response.data.candidates[0].content.parts[0].text || text;
+  } catch (err) {
+    return text;
+  }
+}
+
+
+
+const BACKEND_API_URL = `${import.meta.env.VITE_API_URL}/api/disease/detect`;
 
   async function detectDisease(imageFile, plantName) {
     try {
@@ -34,6 +65,10 @@ function PlantDiseaseDetection() {
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [detectionResult, setDetectionResult] = useState(null);
+  const [translatedText, setTranslatedText] = useState(null);
+const [isHindi, setIsHindi] = useState(false);
+const [translating, setTranslating] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const navigate = useNavigate();
@@ -192,20 +227,65 @@ function PlantDiseaseDetection() {
 
               {detectionResult && !detectionResult.error && (
                 <div className="p-4 border border-gray-200 rounded-lg bg-gray-50">
-                  <h3 className="text-lg font-semibold text-green-600 mb-2">Detection Result</h3>
-                  <p>
-                    <span className={`inline-block px-2 py-1 rounded-md text-sm ${
-                      detectionResult.disease === 'Healthy'
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-red-100 text-red-800'
-                    }`}>
-                      Disease: {detectionResult.disease}
-                    </span>
-                  </p>
-                  <p><strong>Severity:</strong> {detectionResult.severity}</p>
-                  <p><strong>Treatment:</strong> {detectionResult.treatment}</p>
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-lg font-semibold text-green-600 mb-2">Detection Result</h3>
+
+                    {/* Language Toggle Button */}
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        setTranslating(true);
+
+                        const originalText = `
+              Disease: ${detectionResult.disease}
+              Severity: ${detectionResult.severity}
+              Treatment: ${detectionResult.treatment}
+                        `;
+
+                        const result = await translateText(originalText, isHindi ? "en" : "hi");
+
+                        setTranslatedText(result);
+                        setIsHindi(!isHindi);
+                        setTranslating(false);
+                      }}
+                      className="bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-3 py-1 rounded-md"
+                    >
+                      {translating
+                        ? "Translating..."
+                        : isHindi
+                        ? "Show English"
+                        : "Translate to Hindi"}
+                    </button>
+                  </div>
+
+                  {/* ORIGINAL English result (hide if Hindi displayed) */}
+                  {!isHindi && (
+                    <>
+                      <p>
+                        <span
+                          className={`inline-block px-2 py-1 rounded-md text-sm ${
+                            detectionResult.disease === "Healthy"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-red-100 text-red-800"
+                          }`}
+                        >
+                          Disease: {detectionResult.disease}
+                        </span>
+                      </p>
+                      <p><strong>Severity:</strong> {detectionResult.severity}</p>
+                      <p><strong>Treatment:</strong> {detectionResult.treatment}</p>
+                    </>
+                  )}
+
+                  {/* HINDI translated text */}
+                  {isHindi && translatedText && (
+                    <div className="mt-2 bg-white border border-gray-300 p-3 rounded-md text-gray-800 whitespace-pre-line">
+                      {translatedText}
+                    </div>
+                  )}
                 </div>
               )}
+
             </div>
 
             {/* Right Column */}

@@ -8,8 +8,6 @@ import {
   faArrowLeft,
   faLeaf
 } from '@fortawesome/free-solid-svg-icons';
-
-// Import images for each section
 import uploadCropImg from '../../assets/sells.png';
 import myListingsImg from '../../assets/crop listing.png';
 import bookingsImg from '../../assets/booking.png';

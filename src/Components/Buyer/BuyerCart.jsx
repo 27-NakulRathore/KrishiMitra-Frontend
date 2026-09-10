@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { toast } from "react-toastify";
 import {
     faShoppingCart,
     faTrashAlt,
@@ -22,7 +23,7 @@ function CartPage() {
             const rawCart = JSON.parse(localStorage.getItem(`cart-${email}`)) || [];
 
             try {
-                const response = await fetch('http://localhost:8080/api/crops/crops');
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/crops/all`);
                 const cropsFromServer = await response.json();
 
                 const mergedCart = rawCart.map(cartItem => {
@@ -33,8 +34,12 @@ function CartPage() {
                             cropName: crop.cropName,
                             price: parseFloat(crop.pricePerKg) || 0,
                             unit: crop.unit || 'kg',
-                            cropImage: crop.cropImage || '',
-                            farmer: crop.farmer || { name: 'Unknown Farmer' },
+                            cropImageUrl: crop.cropImageUrl || null,
+                            imageData: crop.imageData || null,
+                            farmer: {
+                                name: crop.farmerName || 'Unknown Farmer',
+                                email: crop.farmerEmail || null
+                            },
                             cartQuantity: cartItem.cartQuantity || 1,
                             availableQuantity: crop.quantity || 0
                         };
@@ -63,11 +68,20 @@ function CartPage() {
     const handleQuantityChange = (cropId, value) => {
         let qty = parseInt(value, 10);
         if (isNaN(qty) || qty < 1) qty = 1;
-        const maxQty = cartItems.find(crop => crop.id === cropId)?.availableQuantity || Infinity;
-        if (qty > maxQty) qty = maxQty;
-        
+
+        const cropItem = cartItems.find(item => item.id === cropId);
+        if (!cropItem) return;
+
+        const maxQty = cropItem.availableQuantity || Infinity;
+
+        if (qty > maxQty) {
+            toast.error(`Only ${maxQty} ${cropItem.unit} available`);
+            qty = maxQty;
+        }
+
         updateQuantity(cropId, qty);
     };
+
 
     const updateCart = (updatedCart) => {
         const email = localStorage.getItem('email');
@@ -119,7 +133,8 @@ function CartPage() {
         navigate('/buyer/checkout', { 
             state: { 
                 cartItems: cartItems,
-                total: total
+                total: total,
+                fromCart: true
             } 
         });
     };
@@ -180,13 +195,22 @@ function CartPage() {
                                     {cartItems.map((item) => (
                                         <div key={item.id} className="p-4 flex flex-col sm:flex-row">
                                             <div className="flex-shrink-0 mb-4 sm:mb-0 sm:mr-4">
-                                                {item.cropImage && (
-                                                    <img 
-                                                        src={item.cropImage} 
-                                                        alt={item.cropName} 
+                                                {item.imageData && (
+                                                    <img
+                                                        src={`data:image/jpeg;base64,${item.imageData}`}
+                                                        alt={item.cropName}
                                                         className="w-20 h-20 object-cover rounded"
                                                     />
                                                 )}
+
+                                                {!item.imageData && item.cropImageUrl && (
+                                                    <img
+                                                        src={`${import.meta.env.VITE_API_URL}${item.cropImageUrl}`}
+                                                        alt={item.cropName}
+                                                        className="w-20 h-20 object-cover rounded"
+                                                    />
+                                                )}
+
                                             </div>
                                             <div className="flex-grow">
                                                 <div className="flex justify-between">

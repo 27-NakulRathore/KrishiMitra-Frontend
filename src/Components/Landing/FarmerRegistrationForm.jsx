@@ -106,7 +106,7 @@ function FarmerRegistrationForm() {
         setIsSubmitting(true);
         
         try {
-            const response = await fetch('http://localhost:8080/api/register/farmer', {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/register/farmer`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -267,7 +267,10 @@ function FarmerRegistrationForm() {
                     >
                         {isSubmitting ? 'Registering...' : 'Register'}
                     </button>
-                    
+                    {/* ⬇️ Static message */}
+                    <p className="text-xs text-gray-600 text-center mt-2">
+                    ⏳ Please wait, this may take 2–3 minutes on first attempt due to server startup.
+                    </p>
                     <div className="text-center mt-3">
                         <Link to="/signin" className="inline-block align-baseline font-bold text-xs text-green-500 hover:text-green-800">
                         Already have an account? Sign In

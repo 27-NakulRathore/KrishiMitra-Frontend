@@ -83,7 +83,6 @@ function BuyerRegistrationForm() {
             [name]: value
         }));
         
-        // Clear error when user starts typing
         if (errors[name]) {
             setErrors(prev => ({
                 ...prev,
@@ -119,7 +118,8 @@ function BuyerRegistrationForm() {
         setIsSubmitting(true);
         
         try {
-            const response = await fetch('http://localhost:8080/api/register/buyer', {
+            console.log(import.meta.env.VITE_API_URL)
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/register/buyer`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -306,6 +306,10 @@ function BuyerRegistrationForm() {
                     >
                         {isSubmitting ? 'Registering...' : 'Register'}
                     </button>
+                    {/* ⬇️ Static message */}
+                    <p className="text-xs text-gray-600 text-center mt-2">
+                    ⏳ Please wait, this may take 2–3 minutes on first attempt due to server startup.
+                    </p>
                     
                     <div className="text-center mt-3">
                         <Link to="/signin" className="inline-block align-baseline font-bold text-xs text-blue-500 hover:text-blue-800 transition-colors duration-200">

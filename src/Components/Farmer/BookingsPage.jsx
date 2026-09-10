@@ -14,7 +14,7 @@ const BookingsPage = () => {
     const fetchBookings = async () => {
       try {
         const email = localStorage.getItem("email");
-        const response = await axios.get(`http://localhost:8080/api/bookings/farmer/${email}`);
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/bookings/farmer/${email}`);
         
         const formattedBookings = response.data.map(booking => ({
           id: booking.id,
@@ -49,7 +49,7 @@ const BookingsPage = () => {
       const booking = bookings.find(b => b.id === bookingId);
       if (!booking) return;
 
-      await axios.put(`http://localhost:8080/api/bookings/${bookingId}/status`, null, {
+      await axios.put(`${import.meta.env.VITE_API_URL}/bookings/${bookingId}/status`, null, {
         params: { status: 'confirmed' }
       });
 
@@ -67,7 +67,7 @@ const BookingsPage = () => {
 
   const handlePayment = async (bookingId) => {
     try {
-      await axios.put(`http://localhost:8080/api/bookings/${bookingId}/payment`, null, {
+      await axios.put(`${import.meta.env.VITE_API_URL}/api/bookings/${bookingId}/payment`, null, {
         params: { paymentStatus: 'paid' }
       });
       setBookings(bookings.map(booking => 
@@ -78,7 +78,6 @@ const BookingsPage = () => {
     }
   };
 
-  // ... rest of your component (render method) remains the same ...
 
   if (loading) return (
     <div className="min-h-screen bg-green-50 flex items-center justify-center">

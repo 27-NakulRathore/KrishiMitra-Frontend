@@ -69,7 +69,7 @@ function CropPriceTracker() {
       try {
         const data = await fetchCropPrices();
         if (data.records && data.records.length > 0) {
-          setPriceData(data.records[0]); // take first record
+          setPriceData(data.records[0]);
           showSuccessToast("Price data fetched successfully!");
         } else {
           setPriceData(null);

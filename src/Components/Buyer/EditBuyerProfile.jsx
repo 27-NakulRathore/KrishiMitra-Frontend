@@ -13,6 +13,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import apiClient from '../../api/client';
 
 function EditUserProfile() {
   const navigate = useNavigate();
@@ -65,13 +66,8 @@ function EditUserProfile() {
       return;
     }
 
-    fetch(`http://localhost:8080/api/${userRole}/${email}`)
-      .then(res => {
-        if (!res.ok) {
-          throw new Error(`Failed to fetch profile: ${res.status}`);
-        }
-        return res.json();
-      })
+    apiClient.get(`/api/${userRole}/${email}`)
+      .then(res => res.data)
       .then(data => {
         setUser(data);
         setUpdatedUser({
@@ -194,25 +190,14 @@ function EditUserProfile() {
     if (!validateForm()) return;
 
     const email = localStorage.getItem("email");
-    fetch(`http://localhost:8080/api/${role}/${email}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+    apiClient.put(`/api/${role}/${email}`, {
         name: updatedUser.name,
         email: updatedUser.email,
         contactNumber: updatedUser.phone,
         address: updatedUser.address,
         bankDetails: updatedUser.bankDetails
-      }),
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Failed to update profile');
-        }
-        return response.json();
       })
+      .then(response => response.data)
       .then(data => {
         setUser(data);
         toast.success(`${updatedUser.name} Profile updated successfully!`, {

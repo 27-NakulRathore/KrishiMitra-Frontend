@@ -5,8 +5,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLeaf, faEye, faEyeSlash, faArrowLeft, faHandshake, faSeedling } from '@fortawesome/free-solid-svg-icons';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-// Import your background image - replace with your actual image path
 import backgroundImage from '../../assets/signin.png';
 
 function SignInForm() {
@@ -15,6 +13,7 @@ function SignInForm() {
     const [showPassword, setShowPassword] = useState(false);
     const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -39,103 +38,149 @@ function SignInForm() {
     };
 
     const validatePassword = (password) => {
-        // Updated password validation: at least 8 characters, one uppercase, one lowercase, one number, one special character
+        //password validation: at least 8 characters, one uppercase, one lowercase, one number, one special character
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
         return passwordRegex.test(password);
     };
 
-    const handleSignIn = async (e) => {
-        e.preventDefault();
-        let isValid = true;
+    // const handleSignIn = async (e) => {
+    //     e.preventDefault();
+    //     let isValid = true;
 
-        if (!validateEmail(email)) {
-            setEmailError('Please enter a valid email address.');
-            isValid = false;
-        } else {
-            setEmailError('');
-        }
+    //     if (!validateEmail(email)) {
+    //         setEmailError('Please enter a valid email address.');
+    //         isValid = false;
+    //     } else {
+    //         setEmailError('');
+    //     }
 
-        if (!password) {
-            setPasswordError('Password is required.');
-            isValid = false;
-        } else if (!validatePassword(password)) {
-            setPasswordError(
-                'Password must be at least 8 characters long and contain uppercase, lowercase, number, and a special character.'
-            );
-            isValid = false;
-        } else {
-            setPasswordError('');
-        }
+    //     if (!password) {
+    //         setPasswordError('Password is required.');
+    //         isValid = false;
+    //     } else if (!validatePassword(password)) {
+    //         setPasswordError(
+    //             'Password must be at least 8 characters long and contain uppercase, lowercase, number, and a special character.'
+    //         );
+    //         isValid = false;
+    //     } else {
+    //         setPasswordError('');
+    //     }
 
-        if (isValid) {
-            try {
-                const response = await fetch('http://localhost:8080/api/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ email, password }),
-                });
+    //     if (isValid) {
+    //         try {
+    //             const response = await fetch('http://localhost:8080/api/login', {
+    //                 method: 'POST',
+    //                 headers: {
+    //                     'Content-Type': 'application/json',
+    //                 },
+    //                 body: JSON.stringify({ email, password }),
+    //             });
 
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log('Login successful. Role:', data.role);
-                    console.log('Login successful. Role:', data.email);
+    //             if (response.ok) {
+    //                 const data = await response.json();
+    //                 console.log('Login successful. Role:', data.role);
+    //                 console.log('Login successful. Role:', data.email);
 
-                    // ✅ Store email in localStorage
-                    localStorage.setItem("email", data.email);
-                    console.log("Saved email to localStorage:", localStorage.getItem("email"));
-                    localStorage.setItem("role", data.role);
-                    console.log("Saved Role to localStorage:", localStorage.getItem("role"));
+    //                 //store email in localStorage
+    //                 localStorage.setItem("email", data.email);
+    //                 console.log("Saved email to localStorage:", localStorage.getItem("email"));
+    //                 localStorage.setItem("role", data.role.toLowerCase());
+    //                 console.log("Saved Role to localStorage:", localStorage.getItem("role"));
                     
-                    toast.success('Login successful!', {
-                        position: "top-right",
-                        autoClose: 1500,
-                        hideProgressBar: false,
-                        closeOnClick: true,
-                        pauseOnHover: true,
-                        draggable: true,
-                        progress: undefined,
-                    });
+    //                 toast.success('Login successful!', {
+    //                     position: "top-right",
+    //                     autoClose: 1500,
+    //                     hideProgressBar: false,
+    //                     closeOnClick: true,
+    //                     pauseOnHover: true,
+    //                     draggable: true,
+    //                     progress: undefined,
+    //                 });
 
-                    setTimeout(() => {
-                        if (data.role === 'farmer') {
-                            navigate('/FarmerHomePage', { state: { email: data.email } });
-                        } else if (data.role === 'buyer') {
-                            navigate('/BuyerHomePage', { state: { email: data.email } });
-                        } else {
-                            navigate('/');
-                        }
-                        
-                    }, 3000);
+    //                 setTimeout(() => {
+    //                     const role = data.role.toLowerCase();  // FIX HERE
 
-                } else {
-                    const errorText = await response.text();
-                    console.error(`Login failed: ${errorText}`);
-                    toast.error(`Login failed: ${errorText}`, {
-                        position: "top-right",
-                        autoClose: 1500,
-                        hideProgressBar: false,
-                        closeOnClick: true,
-                        pauseOnHover: true,
-                        draggable: true,
-                        progress: undefined,
-                    });
-                }
-            } catch (error) {
-                console.error('Login error:', error);
-                toast.error('An error occurred. Please try again.', {
-                    position: "top-right",
-                    autoClose: 1500,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                });
-            }
+    //                     if (role.includes("farmer")) {
+    //                         navigate('/FarmerHomePage', { state: { email: data.email } });
+    //                     } 
+    //                     else if (role.includes("buyer")) {
+    //                         navigate('/BuyerHomePage', { state: { email: data.email } });
+    //                     } 
+    //                     else {
+    //                         navigate('/');
+    //                     }
+
+    //                 }, 1500);
+
+
+    //             } else {
+    //                 const errorText = await response.text();
+    //                 console.error(`Login failed: ${errorText}`);
+    //                 toast.error(`Login failed: ${errorText}`, {
+    //                     position: "top-right",
+    //                     autoClose: 1500,
+    //                     hideProgressBar: false,
+    //                     closeOnClick: true,
+    //                     pauseOnHover: true,
+    //                     draggable: true,
+    //                     progress: undefined,
+    //                 });
+    //             }
+    //         } catch (error) {
+    //             console.error('Login error:', error);
+    //             toast.error('An error occurred. Please try again.', {
+    //                 position: "top-right",
+    //                 autoClose: 1500,
+    //                 hideProgressBar: false,
+    //                 closeOnClick: true,
+    //                 pauseOnHover: true,
+    //                 draggable: true,
+    //                 progress: undefined,
+    //             });
+    //         }
+    //     }
+    // };
+const handleSignIn = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+        });
+
+        if (!response.ok) {
+            const msg = await response.text();
+            toast.error(msg);
+            return;
         }
-    };
+
+        const data = await response.json();
+
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("email", data.email);
+        localStorage.setItem("role", data.role);
+
+        toast.success("Login successful!");
+
+        setTimeout(() => {
+            if (data.role.includes("farmer")) {
+                navigate("/FarmerHomePage", { replace: true });
+            } else if (data.role.includes("buyer")) {
+                navigate("/BuyerHomePage", { replace: true });
+            }
+        }, 1500);
+    } catch (err) {
+        console.error(err);
+        toast.error("Please wait… this may take a moment while we securely process your request..");
+        
+    } finally {
+        setIsLoading(false);
+    }
+};
+
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
@@ -235,10 +280,14 @@ function SignInForm() {
                     </div>
                     <button
                         type="submit"
-                        className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full transition-colors duration-300"
+                        disabled={isLoading}
+                        className={`${
+                            isLoading ? "bg-green-300 cursor-not-allowed" : "bg-green-500 hover:bg-green-700"
+                        } text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full transition-colors duration-300`}
                     >
-                        Sign In
+                        {isLoading ? "Signing in..." : "Sign In"}
                     </button>
+
                     <div className="text-center mt-4">
                         <span className="text-gray-600">New user? </span>
                         <Link

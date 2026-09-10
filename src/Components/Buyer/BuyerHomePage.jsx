@@ -17,6 +17,7 @@ import {
     faEnvelope
 } from '@fortawesome/free-solid-svg-icons';
 import { faFacebookF, faTwitter, faInstagram, faLinkedinIn } from "@fortawesome/free-brands-svg-icons";
+import apiClient from '../../api/client';
 
 function BuyerHomePage() {
     const navigate = useNavigate();
@@ -28,11 +29,21 @@ function BuyerHomePage() {
     const [cartCount, setCartCount] = useState(0);
     const dropdownRef = useRef(null);
 
+
+    useEffect(() => {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+
+    if (!token || role !== "buyer") {
+        navigate("/signin", { replace: true });
+    }
+}, []);
+
     useEffect(() => {
         const email = localStorage.getItem('email');
         if (email) {
             const cart = JSON.parse(localStorage.getItem(`cart-${email}`)) || [];
-            setCartCount(cart.reduce((total, item) => total + (item.cartQuantity || 1), 0));
+            setCartCount(cart.length);
         }
     }, []);
 
@@ -40,8 +51,8 @@ function BuyerHomePage() {
         const email = localStorage.getItem("email");
         console.log("Email from localStorage[BuyerHomePage]:", email);
         if (email) {
-            fetch(`http://localhost:8080/api/buyer/${email}`)
-                .then(res => res.json())
+            apiClient.get(`/api/buyer/${email}`)
+                .then(res => res.data)
                 .then(data => {
                     setBuyer(data);
                     console.log("Fetched buyer data:", data);
@@ -57,9 +68,9 @@ function BuyerHomePage() {
             try {
                 let response;
                 if (searchTerm.trim() === "") {
-                    response = await fetch("http://localhost:8080/api/crops/suggestions");
+                    response = await fetch(`${import.meta.env.VITE_API_URL}/api/crops/suggestions`);
                 } else {
-                    response = await fetch(`http://localhost:8080/api/crops/search?query=${searchTerm}`);
+                    response = await fetch(`${import.meta.env.VITE_API_URL}/api/crops/search?query=${searchTerm}`);
                 }
 
                 if (!response.ok) throw new Error("Failed to fetch crops");
@@ -87,6 +98,9 @@ function BuyerHomePage() {
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
+
+
+
 
     const handleLogout = () => {
         const email = localStorage.getItem("email");
@@ -118,7 +132,20 @@ function BuyerHomePage() {
         if (existingItemIndex >= 0) {
             existingCart[existingItemIndex].cartQuantity += 1;
         } else {
-            existingCart.push({ ...crop, cartQuantity: 1 });
+           existingCart.push({
+            id: crop.id,
+            cropName: crop.cropName,
+            cropImageUrl: crop.cropImageUrl,  // image is streamed from /api/crops/{id}/image
+            price: crop.pricePerKg,
+            priceRange: crop.priceRange,
+            unit: crop.unit,
+            availableQuantity: crop.quantity,
+            address: crop.address,
+            farmerEmail: crop.farmerEmail,
+            farmerName: crop.farmerName,
+            cartQuantity: 1
+        });
+
         }
 
         localStorage.setItem(`cart-${email}`, JSON.stringify(existingCart));
@@ -262,21 +289,21 @@ function BuyerHomePage() {
                             {crops.map((crop) => (
                                 <div key={crop.id} className="bg-gray-50 border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                                     <div className="relative h-48 overflow-hidden">
-                                        <img 
-                                            src={`data:image/jpeg;base64,${crop.cropImage}`} 
+                                        <img
+                                            src={crop.cropImageUrl ? `${import.meta.env.VITE_API_URL}${crop.cropImageUrl}` : undefined}
                                             alt={crop.cropName} 
                                             className="w-full h-full object-cover" 
                                         />
                                         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
                                             <h4 className="font-bold text-white">{crop.cropName}</h4>
-                                            <p className="text-sm text-white/90">{crop.farmer?.name} • {crop.address}</p>
+                                            <p className="text-sm text-white/90">{crop.farmerName || 'Unknown Farmer'} • {crop.address}</p>
                                         </div>
                                     </div>
                                     <div className="p-4">
                                         <div className="flex justify-between items-start mb-2">
                                             <div>
                                                 <p className="text-lg font-bold text-gray-800">
-                                                    ₹{crop.price ? crop.price : (crop.priceRange || 'N/A')}/{crop.unit || 'kg'}
+                                                    ₹{crop.pricePerKg ? crop.pricePerKg : (crop.priceRange || 'N/A')}/{crop.unit || 'kg'}
                                                 </p>
                                                 <p className="text-sm text-gray-600">Available: {crop.quantity} {crop.unit}</p>
                                             </div>

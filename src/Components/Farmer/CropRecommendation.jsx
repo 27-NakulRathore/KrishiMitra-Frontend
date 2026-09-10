@@ -61,9 +61,9 @@ function CropRecommendation() {
     return Object.keys(newErrors).length === 0;
   };
 
-
+const API_URL = import.meta.env.VITE_API_URL;
   const callBackendAPI = async (data) => {
-    const response = await fetch("http://127.0.0.1:5000/predict", {
+    const response = await fetch(`${API_URL}/api/predict`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

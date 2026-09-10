@@ -3,14 +3,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faTractor, faShoppingCart, faRobot, faChartLine, 
   faMobileAlt, faLeaf, faMapMarkerAlt, faPhoneAlt, 
-  faEnvelope, faNewspaper, faHandshake, faSeedling
+  faEnvelope, faNewspaper
 } from '@fortawesome/free-solid-svg-icons';
 import { 
   faFacebookF, faTwitter, faInstagram, faLinkedinIn 
 } from '@fortawesome/free-brands-svg-icons';
 import { Link } from 'react-router-dom';
-
-// Import your agriculture images
 import agri1 from '../../assets/agriculture1.png';
 import agri2 from '../../assets/agriculture2.png';
 import agri3 from '../../assets/agriculture3.png';
@@ -23,8 +21,8 @@ function Landing() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Load Google Translate script
-    const script = document.createElement('script');
+
+    const script = document.createElement('script'); // load Google translate script
     script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
     script.async = true;
     document.body.appendChild(script);
@@ -45,32 +43,44 @@ function Landing() {
     const fetchNews = async () => {
       try {
         const response = await fetch(
-          `https://newsapi.org/v2/everything?q=agriculture+india&apiKey=61c40eda66f14630a3fc9d4c6ed2e487&pageSize=4`
+          `${import.meta.env.VITE_API_URL}/api/news/agriculture`
         );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch news");
+        }
+
         const data = await response.json();
         setNews(data.articles || []);
       } catch (error) {
         console.error("Error fetching news:", error);
+
+        // fallback static news (good UX)
         setNews([
           {
             title: "India's Agricultural Growth Reaches 3.5% in Q2",
-            description: "Recent government data shows positive growth in agricultural sector.",
+            description:
+              "Recent government data shows positive growth in agricultural sector.",
             url: "#",
-            urlToImage: "https://via.placeholder.com/300x200?text=Agriculture+News",
-            publishedAt: new Date().toISOString()
+            urlToImage:
+              "https://via.placeholder.com/300x200?text=Agriculture+News",
+            publishedAt: new Date().toISOString(),
           },
           {
             title: "New Farming Techniques Boost Yield in Punjab",
-            description: "Farmers adopting innovative methods see 20% increase in production.",
+            description:
+              "Farmers adopting innovative methods see 20% increase in production.",
             url: "#",
-            urlToImage: "https://via.placeholder.com/300x200?text=Agriculture+News",
-            publishedAt: new Date().toISOString()
-          }
+            urlToImage:
+              "https://via.placeholder.com/300x200?text=Agriculture+News",
+            publishedAt: new Date().toISOString(),
+          },
         ]);
       } finally {
         setLoading(false);
       }
     };
+
 
     fetchNews();
 
@@ -90,12 +100,12 @@ function Landing() {
         <div className="flex items-center">
           <div className="relative">
              <FontAwesomeIcon 
-                                                 icon={faLeaf} 
-                                                 size="2xl" 
-                                                 className="text-green-600 mr-3" 
-                                             />
-                                             <span className="text-3xl font-bold text-green-700">Krishiमित्र</span>
-                                         </div>
+                   icon={faLeaf} 
+                   size="2xl" 
+                   className="text-green-600 mr-3" 
+               />
+              <span className="text-3xl font-bold text-green-700">Krishiमित्र</span>
+          </div>
         </div>
         <Link to="/signin" className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-md transition-colors duration-300">
           Sign In

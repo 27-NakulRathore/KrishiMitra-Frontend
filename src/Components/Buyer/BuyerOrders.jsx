@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import apiClient from '../../api/client';
 
 import {
     faLeaf,
@@ -29,7 +30,7 @@ function BuyerOrders() {
 
     // Initialize cart count from localStorage
     useEffect(() => {
-        const email = localStorage.getItem("email");
+       const email = localStorage.getItem("email")?.toLowerCase();
         if (email) {
             const cart = JSON.parse(localStorage.getItem(`cart-${email}`)) || [];
             setCartCount(cart.reduce((total, item) => total + (item.cartQuantity || 1), 0));
@@ -38,11 +39,10 @@ function BuyerOrders() {
 
     // Fetch buyer details
     useEffect(() => {
-        const email = localStorage.getItem("email");
+        const email = localStorage.getItem("email")?.toLowerCase();
         if (email) {
-            fetch(`http://localhost:8080/api/buyer/${email}`)
-                .then(res => res.json())
-                .then(data => setBuyer(data))
+            apiClient.get(`/api/buyer/${email}`)
+                .then(res => setBuyer(res.data))
                 .catch(err => console.error("Failed to load buyer", err));
         }
     }, []);
@@ -51,21 +51,15 @@ function BuyerOrders() {
     useEffect(() => {
         const fetchOrders = async () => {
     try {
-        const email = localStorage.getItem("email");
+        const email = localStorage.getItem("email")?.toLowerCase();
         if (!email) {
             navigate('/signin');
             return;
         }
         
-        const response = await fetch(`http://localhost:8080/api/orders/buyer/${encodeURIComponent(email)}`);
-        
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.message || "Failed to fetch orders");
-        }
-        
-        const data = await response.json();
-        
+        const response = await apiClient.get(`/api/orders/buyer/${email}`);
+        const data = response.data;
+
         if (!data || data.length === 0) {
             setOrders([]);
             setLoading(false);
@@ -85,7 +79,7 @@ function BuyerOrders() {
                     quantity: quantity,
                     pricePerUnit: totalPrice / quantity,
                     totalPrice: totalPrice,
-                    cropImage: order.crop?.cropImage || order.cropImage || ""
+                    cropImageUrl: order.cropImageUrl || ""
                 }],
                 totalAmount: totalPrice
             };
@@ -95,7 +89,7 @@ function BuyerOrders() {
         setLoading(false);
     } catch (err) {
         console.error("Error fetching orders:", err);
-        setError(err.message || "Failed to load orders. Please try again later.");
+        setError(err.response?.data?.message || err.message || "Failed to load orders. Please try again later.");
         setLoading(false);
     }
 };
@@ -188,7 +182,7 @@ function BuyerOrders() {
                         className="text-green-700 font-bold text-2xl flex items-center hover:opacity-80"
                     >
                         <FontAwesomeIcon icon={faLeaf} className="mr-2 text-green-600 animate-pulse" />
-                        CropBoom
+                        Krishiमित्र
                     </Link>
 
                     <div className="flex items-center space-x-4">
@@ -316,9 +310,9 @@ function BuyerOrders() {
                                                     className={`flex pb-4 ${index !== order.items.length - 1 ? 'border-b mb-4' : ''}`}
                                                 >
                                                     <div className="w-16 h-16 rounded-md overflow-hidden mr-4">
-                                                        {item.cropImage ? (
+                                                        {item.cropImageUrl ? (
                                                             <img
-                                                                src={`data:image/jpeg;base64,${item.cropImage}`}
+                                                                src={`${import.meta.env.VITE_API_URL}${item.cropImageUrl}`}
                                                                 alt={item.cropName}
                                                                 className="w-full h-full object-cover"
                                                             />
